@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1 {
+    color: rgb(255, 255, 255);
+    font-family: Brush Script MT, Brush Script Std, cursive;
+    font-size: 66px;
+  }
+  
+  #container {
+    min-height: 85%;
+  }
+  
+  #main {
+    overflow: auto;
+    padding-bottom: 100px;
+  }
+  
+  footer {
+    background-color: rgba(255, 133, 52, 0.69);
+    color: rgb(255, 203, 188);
+    height: 150px;
+    position: relative;
+    margin-top: -100px;
+    clear: both;
+  }
+  
+  html,
+  body {
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+    url("images/2.jpg");
+    background-repeat: no-repeat;
+    background-size: 1920px 1080px;
+  }
+  
+  .topnav {
+    background-color: rgb(255, 196, 157, 0.75);
+    overflow: hidden;
+  }
+  
+  /* Style the links inside the navigation bar */
+  .topnav a {
+    float: left;
+    color: #000000;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  
+  /* Change the color of links on hover */
+  .topnav a:hover {
+    background-color: rgb(255, 117, 117);
+    color: black;
+  }
+  
+  /* Add a color to the active/current link */
+  .topnav a.active {
+    background-color: rgb(255, 134, 53);
+    color: white;
+  }
+  
+  .button {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 150px;
+  }
+  
+  .btn {
+    border: 2px solid rgb(255, 120, 30);
+    padding: 10px 30px;
+    font-weight: bold;
+    font-size: 15px;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+  }
+  
