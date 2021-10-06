@@ -21,9 +21,9 @@
   footer {
     background-color: rgba(255, 133, 52, 0.69);
     color: rgb(255, 203, 188);
-    height: 150px;
+    height: 100px;
     position: relative;
-    margin-top: -100px;
+    margin-top: -50px;
     clear: both;
   }
   
