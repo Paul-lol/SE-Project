@@ -10,7 +10,12 @@
   }
   
   #container {
-    min-height: 85%;
+    height: 100%;
+    width: 100%;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("3.jpg");
+    background-position: center;
+    background-size: cover;
+    position: fixed;
   }
   
   #main {
@@ -19,25 +24,19 @@
   }
   
   footer {
-    background-color: rgba(255, 133, 52, 0.69);
-    color: rgb(255, 203, 188);
-    height: 100px;
-    position: relative;
-    margin-top: -50px;
-    clear: both;
-  }
-  
-  html,
-  body {
-    height: 100%;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-    url("images/2.jpg");
-    background-repeat: no-repeat;
-    background-size: 1920px 1080px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255, 133, 52, 69);
+    color: white;
+    text-align: center;
+    color: black;
+    font-size: 15px;
   }
   
   .topnav {
-    background-color: rgb(255, 196, 157, 0.75);
+    background-color: rgba(255, 133, 52, 69);
     overflow: hidden;
   }
   
@@ -59,12 +58,12 @@
   
   /* Add a color to the active/current link */
   .topnav a.active {
-    background-color: rgb(255, 134, 53);
+    background-color: red;
     color: white;
   }
   
   .button {
-    position: absolute;
+    position: fixed;
     top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -79,4 +78,8 @@
     color: rgb(255, 255, 255);
     text-decoration: none;
   }
-  
+  h2{
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+  }
