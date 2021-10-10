@@ -1,7 +1,9 @@
 <html>
 <head>
     <title>Pasta Consigliere - Chicken and Pasta</title>
+    <link rel="shortcut icon" href="pasta.png" />
     <link rel = "stylesheet" href = "style.css">
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 </head>
 <body>
     <div class = "hero">
@@ -11,10 +13,10 @@
                 <button type = "button" class = "toggle-btn" onclick="login()">Login</button>
                 <button type = "button" class = "toggle-btn" onclick="register()">Register</button>
             </div>
-            <form id = "login" class = "input-group" action = "checkout.html" method = "GET">
-                <input type = "text" class = "input-field" placeholder="Username" required>
-                <input type = "password" class = "input-field" placeholder="Password" required>
-                <input type = "checkbox" class = "chech-box"><span>Remember Password</span>
+            <form id = "login" class = "input-group" action = "homePage.html" method = "GET">
+                <input type = "text" class = "input-field" placeholder="Username" id="user" required>
+                <input type = "password" class = "input-field" placeholder="Password" id="pass" required>
+                <input type = "checkbox" class = "check-box" id="remember_me"><span>Remember Me</span>
                 <button type = "submit" class = "submit-btn">Login</button>
             </form>
             <form id = "register" class = "input-group" action = "index.html" method = "GET">
@@ -23,12 +25,12 @@
                 <input type = "password" class = "input-field" placeholder="Password" required>
                 <br><br>
                 <button type = "submit" class = "submit-btn">Register</button><br>
-                <button onClick = "location.href='guestHome.html'" type = "button" class = "submit-btn">Continue as Guest</button>
+                <button onClick = "location.href='guestForm.html'" type = "button" class = "submit-btn">Continue as Guest</button>
             </form>
             <div class = "social-icons">
-                <img src = "images/fb.png">
-                <img src = "images/tw.png">
-                <img src = "images/gp.png">
+                <a href = "https://www.facebook.com/pastaconsigliere"><img src = "fb.png"></a>
+                <a href = "https://twitter.com/pconsigliere"><img src = "tw.png"></a>
+                <a href = "mailto:pastaconsigliere@gmail.com"><img src = "gp.png"></a>
             </div>
         </div>
     </div>
