@@ -3,13 +3,23 @@
 <head>
 <title>Reservation Form</title>
 <link rel="stylesheet" href="userForm.css"/>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="shortcut icon" href="images/pasta.png" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
 <body>
+	<div class="topnav">
+		<a href="homePage.html">Home</a>
+		<a href="#"> Profile </a>
+		<a class="active" href="userForm.html"> Reserve </a>
+		<a href="confirmation.html">Last Reservation</a>
+		  <ul class="nav navbar-nav navbar-right">
+		<li><a href="index.html"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+	  </ul>
+	  </div>
+	  
     <div class="content">
 	    <div class="inner_content">
 		<form class="bookTable" method="POST" action="confirmation.html">
@@ -55,5 +65,9 @@
 		</form>
 	</div>
 </div>
+<footer class="footer">
+    <img class="img-rounded" width="50" height="50" src="images/pasta.png">
+    <center>All Rights Reserved (2021)</center>
+</footer>
 </body>
 </html>
