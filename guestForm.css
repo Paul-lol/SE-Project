@@ -9,13 +9,15 @@
 	clear: both;
 	line-height: 0;
   }
-  
-div.content {
-	background: url("images/home2.jpg") center/cover no-repeat;;
-	padding: 26px 26px;
-	height: auto;
-	display: block;
-  }
+
+#container {
+	height: 100%;
+	width: 100%;
+	background-image: url("images/bg2.jpg");
+	background-position: center;
+	background-size: cover;
+	position: fixed;
+}
 
 div.inner_content {
 	max-width: 1200px;
@@ -24,9 +26,9 @@ div.inner_content {
 	margin: 0 auto;
   }
   
-h2.form_head {
+  h2.form_head {
 	text-align: center;
-	color: #505050;
+	color: #f3f3f3;
 	font-size: 30px;
   }
   
@@ -45,12 +47,12 @@ div.left {
 	padding: 20px;
   }
   
-label {
+  label {
 	display: block;
 	margin-top: 10px;
 	margin-bottom: 5px;
-	color: #505050;
-	font-size: 18px;
+	color: #ffffff;
+	font-size: 20px;
   }
   
 input[type="text"],
