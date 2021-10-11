@@ -27,9 +27,10 @@ div.inner_content {
   }
   
   h2.form_head {
+	font-family: Brush Script MT, Brush Script Std, cursive;
 	text-align: center;
 	color: #f3f3f3;
-	font-size: 30px;
+	font-size: 60px;
   }
   
 p.form_slg {
