@@ -26,7 +26,7 @@
   #container {
     height: 100%;
     width: 100%;
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("images/bg1.jpg");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.185), rgba(0, 0, 0, 0.164)), url("images/bg1.jpg");
     background-position: center;
     background-size: cover;
     position: fixed;
@@ -65,14 +65,16 @@
   
   /* Change the color of links on hover */
   .topnav a:hover {
-    background-color: rgb(255, 220, 155);
+    background-color: rgba(255, 220, 155, 0.514);
     color: black;
+	  text-decoration: none;
   }
   
   /* Add a color to the active/current link */
   .topnav a.active {
-    background-color: #C04000;
+    background-color: #c040008a;
     color: white;
+	  text-decoration: none;
   }
   
   .button {
