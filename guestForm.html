@@ -1,9 +1,10 @@
 <html lang="en">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <head>
-<title>Guest Reservation Form</title>
-<link rel="stylesheet" href="guestHome.css"/>
+<title>Reservation Form</title>
+<link rel="stylesheet" href="guestForm.css"/>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="shortcut icon" href="pasta.png" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
@@ -11,8 +12,8 @@
 <body>
     <div class="content">
 	    <div class="inner_content">
-		<form method="POST" action="reservation.html" class="bookTable">
-			<h2 class="form_head">GUEST RESERVATION</h2>
+		<form class="bookTable" method="POST" action="guestConfirm.html">
+			<h2 class="form_head">ONLINE RESERVATION FORM</h2>
 			<p class="form_slg">We offer you the best reservation services</p>
 			<div class="left">
                 <div class="form_group">
@@ -37,20 +38,19 @@
 				</div>
                 <div class="form_group">
                     <label>Number of Guests</label>
-                    <input type="number" placeholder="How many guests" min="1" max = "8" name="guest" id="guest" required>
+                    <input type="number" placeholder="How many guests? " min="1" max = "8" name="guest" id="guest" required>
                </div>
 				
 			</div>
 			
 			<div class="left">
 				<div class="form_group">
-                    <center><img src = "images/pastaconsigliere.png" width="350" height="350"></center>
+                    <center><img src = "pasta.png" width="350" height="350"></center>
 				</div>
 				<div class="form_group">
-					<input type="submit" class="submit" name="submit" value="MAKE RESERVATION" />
+					<input type="submit" class="submit" name="submit" value="BOOK A TABLE" />
 				</div>
 			</div>
-			
 			<p class="clear"></p>
 		</form>
 	</div>
