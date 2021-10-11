@@ -11,65 +11,67 @@
 
 <body>
 	<div id="container">
-	<div class="topnav">
-		<a href="homePage.html">Home</a>
-		<a href="#"> Profile </a>
-		<a class="active" href="userForm.html"> Reserve </a>
-		<a href="confirmation.html">Last Reservation</a>
-		  <ul class="nav navbar-nav navbar-right">
-		<li><a href="index.html"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-	  </ul>
-	  </div>
-	  
-    <div class="content">
-	    <div class="inner_content">
-		<form class="bookTable" method="POST" action="confirmation.html">
-			<h2 class="form_head">ONLINE RESERVATION FORM</h2>
-			<p class="form_slg">We offer you the best reservation services</p>
-			<div class="left">
-                <div class="form_group">
-                    <label>Name</label>
-                    <input type="text" placeholder="Full Name" required>
-               </div>
-               <div class="form_group">
-                    <label>Phone Number</label>
-                    <input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="phone" placeholder="Ex: 123-456-7890" required>
-                </div>
-                <div class="form_group">
-                    <label>Email</label>
-                    <input type="email" name="email" placeholder="Email Address" required>
-                </div>
-				<div class="form_group">
-					<label>Date</label>
-					<input type="date" name="date_res" placeholder="Select date for booking" required>
+		<div class="topnav">
+			<a href="homePage.html">Home</a>
+			<a href="#"> Profile </a>
+			<a class="active" href="userForm.html"> Reserve </a>
+			<a href="confirmation.html">Last Reservation</a>
+			<ul class="nav navbar-nav navbar-right">
+			<li><a href="index.html"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+		</ul>
+		</div>
+		
+		<div class="content">
+			<div class="inner_content">
+			<form class="bookTable" method="POST" action="confirmation.html">
+				<h2 class="form_head">ONLINE RESERVATION FORM</h2>
+				<p class="form_slg">We offer you the best reservation services</p>
+				<div class="left">
+					<div class="form_group">
+						<label>Name</label>
+						<input type="text" placeholder="Full Name" required>
 				</div>
 				<div class="form_group">
-					<label>Time</label>
-					<input type="time" name="time" placeholder="Select time for booking" required>
+						<label>Phone Number</label>
+						<input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="phone" placeholder="Ex: 123-456-7890" required>
+					</div>
+					<div class="form_group">
+						<label>Email</label>
+						<input type="email" name="email" placeholder="Email Address" required>
+					</div>
+					<div class="form_group">
+						<label>Date</label>
+						<input type="date" name="date_res" placeholder="Select date for booking" required>
+					</div>
+					<div class="form_group">
+						<label>Time</label>
+						<input type="time" name="time" placeholder="Select time for booking" required>
+					</div>
+					<div class="form_group">
+						<label>Number of Guests</label>
+						<input type="number" placeholder="How many guests? " min="1" max = "8" name="guest" id="guest" required>
 				</div>
-                <div class="form_group">
-                    <label>Number of Guests</label>
-                    <input type="number" placeholder="How many guests? " min="1" max = "8" name="guest" id="guest" required>
-               </div>
+					
+				</div>
 				
-			</div>
-			
-			<div class="left">
-				<div class="form_group">
-                    <center><img src = "images/pasta.png" width="350" height="350"></center>
+				<div class="left">
+					<div class="form_group">
+						<center><img src = "images/pasta.png" width="350" height="350"></center>
+					</div>
+					<div class="form_group">
+						<input type="submit" class="submit" name="submit" value="BOOK A TABLE" />
+					</div>
 				</div>
-				<div class="form_group">
-					<input type="submit" class="submit" name="submit" value="BOOK A TABLE" />
-				</div>
+				<p class="clear"></p>
+			</form>
 			</div>
-			<p class="clear"></p>
-		</form>
+		</div>
 	</div>
-</div>
-</div>
-<footer class="footer">
-    <img class="img-rounded" width="50" height="50" src="images/pasta.png">
-    <center>All Rights Reserved (2021)</center>
-</footer>
+
+	<footer class="footer">
+		<img class="img-rounded" width="50" height="50" src="images/pasta.png">
+		<center>All Rights Reserved (2021)</center>
+	</footer>
+	
 </body>
 </html>
