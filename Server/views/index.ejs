@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Home</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="css/pasta.png" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/homePage.css" />
+</head>
+
+<body>
+  <div id="container">
+    <div class="topnav">
+        <a class="active" href="homePage.html">Home</a>
+        <a href="#"> Profile </a>
+        <a href="userForm.html"> Reserve </a>
+        <a href="confirmation.html">Last Reservation</a>
+          <ul class="nav navbar-nav navbar-right">
+        <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+      </form>
+      </ul>
+      </div>
+    
+    <h3>Welcome, <%= name %> </h3>
+    <center>
+    <h1> Pasta Consigliere </h1>
+    </center>
+        <div id="main">
+            <div class="button">
+                <a href="#" class="btn">View / Edit Profile</a>
+                <a href="userForm.html" class="btn">Reserve a Table</a>
+                <a href="confirmation.html" class="btn">View Reservation</a>
+                <br><br><center>
+                  <form action = "/logout?_method=DELETE" method="POST">
+                      <a href="/logout" class="btn">Log Out</button>
+                  </form>
+            </div>
+        </div>
+    </div>
+
+<footer class="footer">
+    <img class="img-rounded" width="50" height="50" src="css/pasta.png">
+    <center>All Rights Reserved (2021)</center>
+</footer>
+
+</body>
+</html>
