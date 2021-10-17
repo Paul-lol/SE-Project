@@ -14,12 +14,12 @@
 <body>   
     <div id="container">
 		<div class="topnav">
-			<a href="homePage.html">Home</a>
-			<a class="active" href = "editProfile.html"> Profile </a>
-			<a href="userForm.html"> Reserve </a>
-			<a href="confirmation.html">Last Reservation</a>
+			<a href="/">Home</a>
+			<a class="active" href = "/profile"> Profile </a>
+			<a href="/userForm"> Reserve </a>
+			<a href="/confirmation">Last Reservation</a>
 			<ul class="nav navbar-nav navbar-right">
-			<li><a href="index.html"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+			<li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 		</ul>
 		</div>
      
@@ -70,7 +70,7 @@
         <div class="form-group">
             <!-- State Button -->
             <label for="state_id" class="control-label">State</label>
-            <select class="form-control" required name="state">
+            <select style="color: black;" class="form-control" required name="state">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -145,17 +145,17 @@
 
         <h4 class="mb-4"> Preferred Payment Method <h4>
         <div class="form-check">
-          <input id="creditcard" name="paymentmethod" type="radio" class="form-check-input" checked required>
+          <input id="creditcard" name="paymentmethod" value="Credit Card" type="radio" class="form-check-input" checked required>
           <label for="creditcard"> Credit Card </label>
         </div>
 
         <div class="form-check">
-          <input id="check" name="paymentmethod" type="radio" class="form-check-input" checked required>
+          <input id="check" name="paymentmethod" type="radio" value="Check" class="form-check-input" checked required>
           <label for="check"> Check </label>
         </div>
 
         <div class="form-check">
-          <input id="cash" name="paymentmethod" type="radio" class="form-check-input" checked required>
+          <input id="cash" name="paymentmethod" type="radio" value="Cash" class="form-check-input" checked required>
           <label for="cash"> Cash </label>
         </div>
 
