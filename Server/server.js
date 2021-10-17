@@ -18,24 +18,53 @@ initializePassport(
     id => users.find(user => user.id === id)
 )
 
+// Connect to MongoDB Database with Mongoose
 mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_Project_Database?retryWrites=true&w=majority').then(result => {
     console.log('Connected to Database!');
 }).catch(err => console.log(err));
 
+// User Profile Information
 const userSchema = new mongoose.Schema({ 
-    full_name: { type: String, required: true }, 
-    street1: { type: String, required: true },
-    street2: String,
+    name: { type: String, required: true },
+    mail_street1: { type: String, required: true },
+    mail_street2: String,
+    bill_street1: { type: String, required: true },
+    bill_street2: String,
     city: { type: String, required: true }, 
     zip: { type: Number, required: true },
     state: { type: String, required: true },
+    points: { type: Number, required: true },
+    preferred_payment: { type: String, required: true },
     username: { type: String, required: true }
 });
-
+// User Reservation Information
+const reservationSchema = new mongoose.Schema({ 
+    name: { type: String, required: true },
+    phone_num: { type: String, required: true },
+    email: { type: String, required: true },
+    date: { type: Date, required: true },
+    time: { type: String, required: true },
+    num_guests: { type: Number, required: true },
+    table_num: { type: Number, required: true }
+});
+// User Login Information
 const UserInfo = require('./models/UserInfo')
 const User = mongoose.model("User", userSchema);
+const Reservation = mongoose.model("Reservation", reservationSchema);
 
 const users = []
+let userInfo = {
+    name: '',
+    mail_street1: '',
+    mail_street2: '',
+    bill_street1: '',
+    bill_street2: '',
+    city: '',
+    zip: '',
+    state: '',
+    points: 0,
+    preferred_payment: 'Cash'
+};
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -49,16 +78,6 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
-
-
-let userInfo = {
-    full_name: '', 
-    street1: '', 
-    street2: 'N/A',
-    state: '',
-    city: '', 
-    zip: ''
-};
 
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
@@ -92,18 +111,16 @@ app.get('/', checkAuthenticated, async (req, res) => {
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login.ejs')
 })
-
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
 }))
 
-// REGISTER
+// REGISTER 
 app.get('/register', checkNotAuthenticated, (req, res) => {
     res.render('register.ejs')
 })
-
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
       const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
@@ -134,11 +151,25 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
+// PROFILE
+app.get('/profile', checkAuthenticated, (req,res) => {
+    res.render('profile.ejs', {full_name: userInfo.full_name, 
+    street1: userInfo.street1, 
+    street2: userInfo.street2,
+    state: userInfo.state,
+    city: userInfo.city,
+    zip: userInfo.zip});
+})
+
+// EDIT PROFILE
+app.get('/editProfile', checkAuthenticated, (req, res) => {
+    res.render('editProfile.ejs');
+})
+
 // GUEST FORM
 app.get('/guestForm', (req, res) => {
     res.render('guestForm.ejs')
 })
-
 app.post('/guestForm', (req,res) => {
     //console.log(req.user.username);
     // const filter = { username: req.user.username }
@@ -172,19 +203,8 @@ app.get('/guestPreConfirm', (req, res) => {
 app.get('/userForm', checkAuthenticated, async (req, res) => {
     res.render('userForm.ejs')
 })
-
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     res.redirect('/confirmation')
-})
-
-app.get('/logout', (req, res) => {
-    req.logOut()
-    res.redirect('/login')
-})
-
-app.delete('/logout', (req, res) => {
-    req.logOut()
-    res.redirect('/login')
 })
 
 // CONFIRMATION
@@ -192,19 +212,27 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
     res.render('confirmation.ejs')
 })
 
+
+// LOGOUT
+app.get('/logout', (req, res) => {
+    req.logOut()
+    res.redirect('/login')
+})
+app.delete('/logout', (req, res) => {
+    req.logOut()
+    res.redirect('/login')
+})
+
+
+
+
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
-        return next()
-    }
-
-    res.redirect('/login')
-}
-
+        return next()}
+    res.redirect('/login')}
 function checkNotAuthenticated(req, res, next){
     if (req.isAuthenticated()){
-        return res.redirect('/')
-    }
-    next()
-}
+        return res.redirect('/')}
+    next()}
 
 app.listen(3000)
