@@ -45,7 +45,8 @@ const reservationSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     time: { type: String, required: true },
     num_guests: { type: Number, required: true },
-    table_num: { type: Number, required: true }
+    table_num: { type: Number, required: true },
+    username: { type: String, required: true }
 });
 // User Login Information
 const UserInfo = require('./models/UserInfo')
@@ -66,13 +67,23 @@ let userInfo = {
     preferred_payment: 'Cash'
 };
 // TODO - CHANGE TO FIT RESERVATIONS SCHEMA
-function Reservation_(gallons, d_address, d_date, price_per) { 
-    this.gallons = gallons; 
-    this.d_address = d_address;
-    this.d_date = d_date;
-    this.price_per = price_per;
-    this.total = gallons * price_per;
-}
+// function Reservation_(gallons, d_address, d_date, price_per) { 
+//     this.gallons = gallons; 
+//     this.d_address = d_address;
+//     this.d_date = d_date;
+//     this.price_per = price_per;
+//     this.total = gallons * price_per;
+// }
+let reservation = {
+    name: '',
+    phone_num: '',
+    email: '',
+    date: '01-01-2021',
+    time: '00:00',
+    num_guests: '0',
+    table_num: '0'
+};
+
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -190,6 +201,8 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         city: req.body.city,
         zip: req.body.zip,
         state: req.body.state,
+        // TODO - DONT UPDATE POINTS, KEEP THE SAME
+        // Fetch points beforehand first from database then set points to that before updating in database
         points: 9999,
         preferred_payment: req.body.paymentmethod,
         username: req.user.username
@@ -219,32 +232,32 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
 })
 
 // GUEST FORM
-app.get('/guestForm', (req, res) => {
+app.get('/guestForm', async (req, res) => {
     let min_date = getMinDate()
     res.render('guestForm.ejs', {user: userInfo, min_date});
 })
-
-app.post('/guestForm', (req,res) => {
-    //console.log(req.user.username);
-    // const filter = { username: req.user.username }
-    // if(req.user.first_time){
-    //     const update = { first_time: false }
-    //     await UserInfo.findOneAndUpdate(filter, update)
-    // }
-    // let fuel = new Fuel_quote(req.body.gallons_requested,
-    //     req.body.delivery_address,
-    //     req.body.delivery_date,
-    //     req.body.price_per_gallon, 
-    //     req.body.total_due);
-    // const fuelQuote = new FuelQuote({
-    //     gallons: fuel.gallons,
-    //     delivery_address: fuel.d_address,
-    //     delivery_date: fuel.d_date,
-    //     price_per: fuel.price_per,
-    //     total: fuel.total,
-    //     username: req.user.username
-    // })
-    // await fuelQuote.save();
+app.post('/guestForm', async (req,res) => {
+    reservation = {
+        name: req.body.name,
+        phone_num: req.body.phone,
+        email: req.body.email,
+        date: req.body.date_res,
+        time: req.body.time,
+        num_guests: req.body.guest,
+        table_num: req.body.tablenum
+    }
+    const newReservation = new Reservation({
+        name: reservation.name,
+        phone_num: reservation.phone_num,
+        email: reservation.email,
+        date: reservation.date,
+        time: reservation.time,
+        num_guests: reservation.num_guests,
+        table_num: reservation.table_num,
+        username: "guest"
+    })
+    console.log(reservation)
+    await newReservation.save();
     res.redirect('/guestPreConfirm')
 })
 
@@ -260,6 +273,27 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
     res.render('userForm.ejs', {user: userInfo, min_date});
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
+    reservation = {
+        name: req.body.name,
+        phone_num: req.body.phone,
+        email: req.body.email,
+        date: req.body.date_res,
+        time: req.body.time,
+        num_guests: req.body.guest,
+        table_num: req.body.tablenum
+    }
+    const newReservation = new Reservation({
+        name: reservation.name,
+        phone_num: reservation.phone_num,
+        email: reservation.email,
+        date: reservation.date,
+        time: reservation.time,
+        num_guests: reservation.num_guests,
+        table_num: reservation.table_num,
+        username: req.user.username
+    })
+    console.log(reservation)
+    await newReservation.save();
     res.redirect('/confirmation')
 })
 
