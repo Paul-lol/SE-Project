@@ -179,6 +179,12 @@ app.get('/guestForm', (req, res) => {
     let min_time = getMinTime()
     res.render('guestForm.ejs', {user: userInfo, min_date, min_time});
 })
+
+// EDIT PROFILE
+app.get('/editProfile', (req, res) => {
+    res.render('editProfile.ejs')
+})
+
 app.post('/guestForm', (req,res) => {
     //console.log(req.user.username);
     // const filter = { username: req.user.username }
