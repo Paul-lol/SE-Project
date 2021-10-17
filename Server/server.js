@@ -2,6 +2,7 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
 }
 
+const mongoose = require('mongoose')
 const express = require('express')
 const app = express()
 const bcrypt = require('bcrypt')
@@ -17,8 +18,19 @@ initializePassport(
     id => users.find(user => user.id === id)
 )
 
-const users = []
+mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_Project_Database?retryWrites=true&w=majority').then(result => {
+    console.log('Connected to Database!');
+}).catch(err => console.log(err));
 
+const userInfoSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    password: { type: String, required: true },
+    new_user: { type: Boolean, default: true},
+});
+
+const UserInfo = mongoose.model("UserInfo", userInfoSchema);
+
+const users = []
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -34,8 +46,28 @@ app.use(passport.session())
 app.use(methodOverride('_method'))
 
 // HOME PAGE
-app.get('/', checkAuthenticated, (req, res) => {
-    res.render('index.ejs', { name: req.user.inputUsername })
+app.get('/', checkAuthenticated, async (req, res) => {
+    const filter = { username: req.user.username }
+    if(req.user.new_user){
+        const update = { new_user: false }
+        await UserInfo.findOneAndUpdate(filter, update)
+        res.redirect('/editProfile')
+    }
+    else{
+        await User.find(filter).then(async (info) => {
+            console.log("info");
+            console.log(info);
+            userInfo = { 
+                full_name: info[0].full_name,
+                street1: info[0].street1,
+                street2: info[0].street2,
+                state: info[0].state,
+                city: info[0].city,
+                zip: info[0].zip
+            };
+        })
+        res.render('index.ejs', {name: req.user.username});
+    }
 })
 
 // LOGIN
@@ -62,9 +94,25 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
           inputUsername : req.body.inputUsername,
           inputPassword : hashedPassword
       })
-      res.redirect('/login')
-    } catch {
-      res.redirect('/register')
+      await UserInfo.find({ username: req.body.inputUsername }).then((users) =>{
+        if (users.length > 0){
+            // console.log(users.length);
+            //users.splice(0, users.length);
+            res.redirect('/register');
+        } else{
+            const userInfo = new UserInfo ({
+                username: req.body.inputUsername,
+                password: hashedPassword,
+                new_user: true
+            })
+            userInfo.save();
+            console.log(userInfo);
+            res.redirect('/login')
+        }
+    })
+    } catch(error) {
+        console.error(error);
+        res.redirect('/register')
     }
 })
 
