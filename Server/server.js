@@ -173,15 +173,16 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
     res.render('editProfile.ejs');
 })
 
+// POST PROFILE INFO
+app.post('/editProfile', checkAuthenticated, async (req,res) => {
+    console.log(req.body);
+    res.redirect('/profile');
+})
+
 // GUEST FORM
 app.get('/guestForm', (req, res) => {
     let min_date = getMinDate()
     res.render('guestForm.ejs', {user: userInfo, min_date});
-})
-
-// EDIT PROFILE
-app.get('/editProfile', (req, res) => {
-    res.render('editProfile.ejs')
 })
 
 app.post('/guestForm', (req,res) => {
