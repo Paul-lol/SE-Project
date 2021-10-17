@@ -59,31 +59,33 @@ let userInfo = {
     city: '', 
     zip: ''
 };
+
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
-    const filter = { username: req.user.username }
-    if(req.user.new_user){
-        ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
-        const update = { new_user: false }
-        await UserInfo.findOneAndUpdate(filter, update)
-        //////// END
-        res.redirect('/')
-    }
-    else{
-        await User.find(filter).then(async (info) => {
-            console.log("info");
-            console.log(info);
-            userInfo = { 
-                full_name: info[0].full_name,
-                street1: info[0].street1,
-                street2: info[0].street2,
-                state: info[0].state,
-                city: info[0].city,
-                zip: info[0].zip
-            };
-        })
-        res.render('index.ejs', {name: req.user.username});
-    }
+    // const filter = { username: req.user.username }
+    // if(req.user.new_user){
+    //     ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
+    //     const update = { new_user: false }
+    //     await UserInfo.findOneAndUpdate(filter, update)
+    //     //////// END
+    //     res.redirect('/')
+    // }
+    // else{
+    //     await User.find(filter).then(async (info) => {
+    //         console.log("info");
+    //         console.log(info);
+    //         userInfo = { 
+    //             full_name: info[0].full_name,
+    //             street1: info[0].street1,
+    //             street2: info[0].street2,
+    //             state: info[0].state,
+    //             city: info[0].city,
+    //             zip: info[0].zip
+    //         };
+    //     })
+    //     res.render('index.ejs', {name: req.user.username});
+    // }
+    res.render('index.ejs', {name: req.user.username});
 })
 
 // LOGIN
