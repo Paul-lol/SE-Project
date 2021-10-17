@@ -175,7 +175,8 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
 
 // GUEST FORM
 app.get('/guestForm', (req, res) => {
-    res.render('guestForm.ejs')
+    let min_date = getMinDate()
+    res.render('guestForm.ejs', {user: userInfo, min_date});
 })
 app.post('/guestForm', (req,res) => {
     //console.log(req.user.username);
@@ -208,26 +209,7 @@ app.get('/guestPreConfirm', (req, res) => {
 
 // USER FORM
 app.get('/userForm', checkAuthenticated, async (req, res) => {
-    let currentDate = new Date();
-    let cDay = currentDate.getDate()
-    let cMonth = currentDate.getMonth() + 1
-    let cYear = currentDate.getFullYear()
-    let min_date = cYear + '-' + cMonth + '-' + cDay
-    if(cMonth < 10){
-        min_date = cYear + '-0' + cMonth
-        if(cDay < 10){
-            min_date = min_date + '-0' + cDay
-        } else{
-            min_date = min_date + '-' + cDay
-        }
-    } else{
-        min_date = cYear + '-' + cMonth
-        if(cDay < 10){
-            min_date = min_date + '-0' + cDay
-        } else{
-            min_date = min_date + '-' + cDay
-        }
-    }
+    let min_date = getMinDate()
     //res.render('fuel_quote.ejs', {user: userInfo, min_date});
     res.render('userForm.ejs', {user: userInfo, min_date});
 })
@@ -254,6 +236,7 @@ app.delete('/logout', (req, res) => {
 
 
 
+
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
         return next()}
@@ -262,5 +245,29 @@ function checkNotAuthenticated(req, res, next){
     if (req.isAuthenticated()){
         return res.redirect('/')}
     next()}
+
+function getMinDate(){
+    let currentDate = new Date();
+    let cDay = currentDate.getDate()
+    let cMonth = currentDate.getMonth() + 1
+    let cYear = currentDate.getFullYear()
+    let min_date = cYear + '-' + cMonth + '-' + cDay
+    if(cMonth < 10){
+        min_date = cYear + '-0' + cMonth
+        if(cDay < 10){
+            min_date = min_date + '-0' + cDay
+        } else{
+            min_date = min_date + '-' + cDay
+        }
+    } else{
+        min_date = cYear + '-' + cMonth
+        if(cDay < 10){
+            min_date = min_date + '-0' + cDay
+        } else{
+            min_date = min_date + '-' + cDay
+        }
+    }
+    return min_date;
+}
 
 app.listen(3000)
