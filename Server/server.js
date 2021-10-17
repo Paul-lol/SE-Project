@@ -66,7 +66,6 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     } catch {
       res.redirect('/register')
     }
-
 })
 
 // GUEST FORM
