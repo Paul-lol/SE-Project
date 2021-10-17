@@ -139,6 +139,11 @@ app.get('/guestForm', (req, res) => {
     res.render('guestForm.ejs')
 })
 
+// EDIT PROFILE
+app.get('/editProfile', (req, res) => {
+    res.render('editProfile.ejs')
+})
+
 app.post('/guestForm', (req,res) => {
     //console.log(req.user.username);
     // const filter = { username: req.user.username }
