@@ -80,6 +80,11 @@ app.delete('/logout', (req, res) => {
     res.redirect('/login')
 })
 
+// HOME PAGE
+app.get('/homePage', (req, res) => {
+    
+})
+
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
         return next()
