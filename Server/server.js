@@ -95,7 +95,12 @@ app.post('/guestForm', (req,res) => {
     //     username: req.user.username
     // })
     // await fuelQuote.save();
-    res.redirect('/guestConfirm')
+    res.redirect('/guestPreConfirm')
+})
+
+// GUEST CONFIRMATION
+app.get('/guestPreConfirm', (req, res) => {
+    res.render('guestPreConfirm.ejs')
 })
 
 // USER FORM
