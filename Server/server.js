@@ -33,10 +33,12 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
 
+// HOME PAGE
 app.get('/', checkAuthenticated, (req, res) => {
     res.render('index.ejs', { name: req.user.inputUsername })
 })
 
+// LOGIN
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login.ejs')
 })
@@ -47,6 +49,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     failureFlash: true
 }))
 
+// REGISTER
 app.get('/register', checkNotAuthenticated, (req, res) => {
     res.render('register.ejs')
 })
@@ -66,8 +69,14 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
 
 })
 
+// GUEST FORM
 app.get('/guestForm', (req, res) => {
     res.render('guestForm.ejs')
+})
+
+// USER FORM
+app.get('/userForm', (req, res) => {
+    res.render('userForm.ejs')
 })
 
 app.get('/logout', (req, res) => {
@@ -80,9 +89,9 @@ app.delete('/logout', (req, res) => {
     res.redirect('/login')
 })
 
-// HOME PAGE
-app.get('/homePage', (req, res) => {
-    
+// CONFIRMATION
+app.get('/confirmation', (req, res) => {
+    res.render('confirmation.ejs')
 })
 
 function checkAuthenticated(req, res, next){
