@@ -74,9 +74,37 @@ app.get('/guestForm', (req, res) => {
     res.render('guestForm.ejs')
 })
 
+app.post('/guestForm', (req,res) => {
+    //console.log(req.user.username);
+    // const filter = { username: req.user.username }
+    // if(req.user.first_time){
+    //     const update = { first_time: false }
+    //     await UserInfo.findOneAndUpdate(filter, update)
+    // }
+    // let fuel = new Fuel_quote(req.body.gallons_requested,
+    //     req.body.delivery_address,
+    //     req.body.delivery_date,
+    //     req.body.price_per_gallon, 
+    //     req.body.total_due);
+    // const fuelQuote = new FuelQuote({
+    //     gallons: fuel.gallons,
+    //     delivery_address: fuel.d_address,
+    //     delivery_date: fuel.d_date,
+    //     price_per: fuel.price_per,
+    //     total: fuel.total,
+    //     username: req.user.username
+    // })
+    // await fuelQuote.save();
+    res.redirect('/guestConfirm')
+})
+
 // USER FORM
-app.get('/userForm', (req, res) => {
+app.get('/userForm', checkAuthenticated, async (req, res) => {
     res.render('userForm.ejs')
+})
+
+app.post('/userForm', checkAuthenticated, async (req,res) => {
+    res.redirect('/confirmation')
 })
 
 app.get('/logout', (req, res) => {
@@ -90,7 +118,7 @@ app.delete('/logout', (req, res) => {
 })
 
 // CONFIRMATION
-app.get('/confirmation', (req, res) => {
+app.get('/confirmation', checkAuthenticated, async(req, res) => {
     res.render('confirmation.ejs')
 })
 
