@@ -176,7 +176,8 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
 // GUEST FORM
 app.get('/guestForm', (req, res) => {
     let min_date = getMinDate()
-    res.render('guestForm.ejs', {user: userInfo, min_date});
+    let min_time = getMinTime()
+    res.render('guestForm.ejs', {user: userInfo, min_date, min_time});
 })
 app.post('/guestForm', (req,res) => {
     //console.log(req.user.username);
@@ -210,8 +211,9 @@ app.get('/guestPreConfirm', (req, res) => {
 // USER FORM
 app.get('/userForm', checkAuthenticated, async (req, res) => {
     let min_date = getMinDate()
+    let min_time = getMinTime()
     //res.render('fuel_quote.ejs', {user: userInfo, min_date});
-    res.render('userForm.ejs', {user: userInfo, min_date});
+    res.render('userForm.ejs', {user: userInfo, min_date, min_time});
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     res.redirect('/confirmation')
@@ -246,6 +248,7 @@ function checkNotAuthenticated(req, res, next){
         return res.redirect('/')}
     next()}
 
+// MINIMUM DATE AND TIME
 function getMinDate(){
     let currentDate = new Date();
     let cDay = currentDate.getDate()
@@ -268,6 +271,32 @@ function getMinDate(){
         }
     }
     return min_date;
+}
+// MINIMUM TIME
+// NEED TO ONLY APPLY ON SAME DAY (IF CURRENT DATE AND THE TIME SELECTED HAS PASSED ALREADY)
+// NEED TO CONSIDER BUSINESS HOURS TOO
+// RESTAURANT OPENING TIME and RESTAURANT CLOSING
+function getMinTime(){
+    let currentDate = new Date();
+    let currentHour = currentDate.getHours() 
+    let currentMinute = currentDate.getMinutes()
+    let min_time = currentHour + ":" + currentMinute
+    if(currentHour < 10){
+        min_time = '0' + currentHour
+        if(currentMinute < 10){
+            min_time = min_time + ':0' + currentMinute 
+        } else {
+            min_time = min_time + ':' + currentMinute
+        }
+    } else {
+        min_time = '' + currentHour
+        if(currentMinute < 10){
+            min_time = min_time + ':0' + currentMinute 
+        } else {
+            min_time = min_time + ':' + currentMinute
+        }
+    }
+    //console.log(min_time)
 }
 
 app.listen(3000)
