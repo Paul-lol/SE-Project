@@ -41,11 +41,11 @@
 					</div>
 					<div class="form_group">
 						<label>Date</label>
-						<input type="date" name="date_res" min= "<%= min_date %>" placeholder="Select date for booking" required=true>
+						<input id="date_id" type="date" name="date_res" min= "<%= min_date %>" onchange="updateMinTime()" placeholder="Select date for booking" required=true>
 					</div>
 					<div class="form_group">
 						<label>Time</label>
-						<input type="time" name="time" min="<%= min_time %>" placeholder="Select time for booking" required>
+						<input id="set_time" type="time" name="time" min="10:00" max="21:00" placeholder="Select time for booking" required>
 					</div>
 					<div class="form_group">
 						<label>Number of Guests</label>
@@ -78,4 +78,48 @@
 	</footer>
 	
 </body>
+<!-- 
+
+	// Minimum Reservation Time
+	// By default: 10:00 AM
+	// On same day: Current time + 1 hour
+	// Maximum Reservation time
+	// By default: 1 hour before closing. Closing at 10:00 PM so MAX = "21:00"
+
+-->
+<script>
+	function updateMinTime(){
+		let cDate = new Date();
+		let min_date = document.getElementById("date_id").min
+		let currDate = document.getElementById("date_id").value
+		console.log("currDate: " + currDate)
+		let currentHour = cDate.getHours() + 1
+		let currentMinute = cDate.getMinutes()
+		let min_time = currentHour + ":" + currentMinute
+		// console.log("min_date: " + min_date)
+		// console.log("currDate: " + currDate)
+		// console.log(currDate == min_date)
+		if(currDate == min_date){
+			if(currentHour < 10){
+				min_time = '0' + currentHour
+				if(currentMinute < 10){
+					min_time = min_time + ':0' + currentMinute 
+				} else {
+					min_time = min_time + ':' + currentMinute
+				}
+			} else {
+				min_time = '' + currentHour
+				if(currentMinute < 10){
+					min_time = min_time + ':0' + currentMinute 
+				} else {
+					min_time = min_time + ':' + currentMinute
+				}
+			}
+			document.getElementById("set_time").min = min_time;
+		} else {
+			document.getElementById("set_time").min = "10:00";
+		}
+		console.log(document.getElementById("set_time").min);
+	}
+</script>
 </html>
