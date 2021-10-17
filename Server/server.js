@@ -22,13 +22,13 @@ mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_
     console.log('Connected to Database!');
 }).catch(err => console.log(err));
 
-const userInfoSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-    new_user: { type: Boolean, default: true},
-});
+// const userInfoSchema = new mongoose.Schema({
+//     username: { type: String, required: true },
+//     password: { type: String, required: true },
+//     new_user: { type: Boolean, default: true},
+// });
 
-const UserInfo = mongoose.model("UserInfo", userInfoSchema);
+const UserInfo = require('./models/UserInfo')
 
 const users = []
 
