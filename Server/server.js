@@ -65,6 +65,13 @@ let userInfo = {
     points: 0,
     preferred_payment: 'Cash'
 };
+function Reservation_(gallons, d_address, d_date, price_per) { 
+    this.gallons = gallons; 
+    this.d_address = d_address;
+    this.d_date = d_date;
+    this.price_per = price_per;
+    this.total = gallons * price_per;
+}
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -201,7 +208,28 @@ app.get('/guestPreConfirm', (req, res) => {
 
 // USER FORM
 app.get('/userForm', checkAuthenticated, async (req, res) => {
-    res.render('userForm.ejs')
+    let currentDate = new Date();
+    let cDay = currentDate.getDate()
+    let cMonth = currentDate.getMonth() + 1
+    let cYear = currentDate.getFullYear()
+    let min_date = cYear + '-' + cMonth + '-' + cDay
+    if(cMonth < 10){
+        min_date = cYear + '-0' + cMonth
+        if(cDay < 10){
+            min_date = min_date + '-0' + cDay
+        } else{
+            min_date = min_date + '-' + cDay
+        }
+    } else{
+        min_date = cYear + '-' + cMonth
+        if(cDay < 10){
+            min_date = min_date + '-0' + cDay
+        } else{
+            min_date = min_date + '-' + cDay
+        }
+    }
+    //res.render('fuel_quote.ejs', {user: userInfo, min_date});
+    res.render('userForm.ejs', {user: userInfo, min_date});
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     res.redirect('/confirmation')
