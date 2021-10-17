@@ -65,6 +65,7 @@ let userInfo = {
     points: 0,
     preferred_payment: 'Cash'
 };
+// TODO - CHANGE TO FIT RESERVATIONS SCHEMA
 function Reservation_(gallons, d_address, d_date, price_per) { 
     this.gallons = gallons; 
     this.d_address = d_address;
@@ -88,30 +89,33 @@ app.use(methodOverride('_method'))
 
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
-    // const filter = { username: req.user.username }
-    // if(req.user.new_user){
-    //     ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
-    //     const update = { new_user: false }
-    //     await UserInfo.findOneAndUpdate(filter, update)
-    //     //////// END
-    //     res.redirect('/')
-    // }
-    // else{
-    //     await User.find(filter).then(async (info) => {
-    //         console.log("info");
-    //         console.log(info);
-    //         userInfo = { 
-    //             full_name: info[0].full_name,
-    //             street1: info[0].street1,
-    //             street2: info[0].street2,
-    //             state: info[0].state,
-    //             city: info[0].city,
-    //             zip: info[0].zip
-    //         };
-    //     })
-    //     res.render('index.ejs', {name: req.user.username});
-    // }
-    res.render('index.ejs', {name: req.user.username});
+    const filter = { username: req.user.username }
+    //console.log(filter)
+    if(req.user.new_user){
+        ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
+        const update = { new_user: false }
+        await UserInfo.findOneAndUpdate(filter, update)
+        //////// END
+        res.redirect('/editProfile')
+    }
+    else{
+        console.log(filter)
+        await UserInfo.find(filter).then(async (info) => {
+            console.log("info");
+            console.log(info);
+            // TO-DO
+            // userInfo = { 
+            //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
+            //     street1: info[0].street1,
+            //     street2: info[0].street2,
+            //     state: info[0].state,
+            //     city: info[0].city,
+            //     zip: info[0].zip
+            // };
+        })
+        res.render('index.ejs', {name: req.user.username});
+    }
+    //res.render('index.ejs', {name: req.user.username});
 })
 
 // LOGIN
@@ -175,7 +179,42 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
 
 // POST PROFILE INFO
 app.post('/editProfile', checkAuthenticated, async (req,res) => {
-    console.log(req.body);
+    // console.log(req.body);
+    const filter = { username: req.user.username };
+    userInfo = {
+        name: req.body.full_name[0] + " " + req.body.full_name[1],
+        mail_street1: req.body.street1,
+        mail_street2: req.body.street2,
+        bill_street1: '',
+        bill_street2: '',   
+        city: req.body.city,
+        zip: req.body.zip,
+        state: req.body.state,
+        points: 9999,
+        preferred_payment: req.body.paymentmethod,
+        username: req.user.username
+    }
+    // checkbox value is 'on' or undefined
+    // console.log(req.body.bill_same)
+    if(req.body.bill_same == 'on'){
+        userInfo.bill_street1 = userInfo.mail_street1;
+        userInfo.bill_street2 = userInfo.mail_street2;
+    }
+    // Insert into database
+    const user = await User.updateOne(filter, {
+        name: userInfo.name,
+        mail_street1: userInfo.mail_street1,
+        mail_street2: userInfo.mail_street2,
+        bill_street1: userInfo.bill_street1,
+        bill_street2: userInfo.bill_street2,
+        city: userInfo.city,
+        zip: userInfo.zip,
+        state: userInfo.state,
+        points: userInfo.points,
+        preferred_payment: userInfo.preferred_payment,
+        username: userInfo.username
+    }, { upsert: true });
+    console.log(userInfo)
     res.redirect('/profile');
 })
 
