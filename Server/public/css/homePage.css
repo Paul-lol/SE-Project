@@ -11,8 +11,9 @@ h1 {
 
 h3 {
   color: rgb(255, 255, 255);
-  font-family: 'Georgia', serif;
-  font-size: 40px;
+  font-family: Brush Script MT, Brush Script Std, cursive;
+  font-size: 60px;
+  padding-left: 30px;
 }
 
 #container {

@@ -1,0 +1,81 @@
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+<title>Reservation Form</title>
+<link rel="stylesheet" type="text/css" href="css/userForm.css"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="shortcut icon" href="css/pasta.png" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+	<div id="container">
+		<div class="topnav">
+			<a href="/">Home</a>
+			<a href="/profile"> Profile </a>
+			<a class="active" href="/userForm"> Reserve </a>
+			<a href="/confirmation">Last Reservation</a>
+			<ul class="nav navbar-nav navbar-right">
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+		</ul>
+		</div>
+		
+		<div class="content">
+			<div class="inner_content">
+			<form class="bookTable" method="POST" action="/userForm">
+				<h2 class="form_head">Reservation Form</h2>
+				<p class="form_slg">We offer you the best reservation services</p>
+				<div class="left">
+					<div class="form_group">
+						<label>Name</label>
+						<input type="text" placeholder="Full Name" required>
+				</div>
+				<div class="form_group">
+						<label>Phone Number</label>
+						<input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="phone" placeholder="Ex: 123-456-7890" required>
+					</div>
+					<div class="form_group">
+						<label>Email</label>
+						<input type="email" name="email" placeholder="Email Address" required>
+					</div>
+					<div class="form_group">
+						<label>Date</label>
+						<input type="date" name="date_res" placeholder="Select date for booking" required>
+					</div>
+					<div class="form_group">
+						<label>Time</label>
+						<input type="time" name="time" placeholder="Select time for booking" required>
+					</div>
+					<div class="form_group">
+						<label>Number of Guests</label>
+						<input type="number" placeholder="How many guests? " min="1" max = "8" name="guest" id="guest" required>
+					</div>
+					<div class="form_group">
+						<label>Table #</label>
+						<input type="number" placeholder="Preferred table? " min="1" max = "20" name="tablenum" id="tablenum" required>
+					</div>	
+					
+				</div>
+				
+				<div class="left">
+					<div class="form_group">
+						<center><img src = "css/pasta.png" width="350" height="350"></center>
+					</div>
+					<div class="form_group">
+						<input type="submit" class="submit" name="submit" value="BOOK A TABLE" />
+					</div>
+				</div>
+				<p class="clear"></p>
+			</form>
+			</div>
+		</div>
+	</div>
+
+	<footer class="footer">
+		<img class="img-rounded" width="50" height="50" src="css/pasta.png">
+		<center>All Rights Reserved (2021)</center>
+	</footer>
+	
+</body>
+</html>

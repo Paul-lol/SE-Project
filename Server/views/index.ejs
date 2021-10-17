@@ -14,10 +14,10 @@
 <body>
   <div id="container">
     <div class="topnav">
-        <a class="active" href="homePage.html">Home</a>
-        <a href="#"> Profile </a>
-        <a href="userForm.html"> Reserve </a>
-        <a href="confirmation.html">Last Reservation</a>
+        <a class="active" href="/">Home</a>
+        <a href="/profile"> Profile </a>
+        <a href="/userForm"> Reserve </a>
+        <a href="/confirmation">Last Reservation</a>
           <ul class="nav navbar-nav navbar-right">
         <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
       </form>
@@ -30,13 +30,15 @@
     </center>
         <div id="main">
             <div class="button">
-                <a href="#" class="btn">View / Edit Profile</a>
-                <a href="userForm.html" class="btn">Reserve a Table</a>
-                <a href="confirmation.html" class="btn">View Reservation</a>
-                <br><br><center>
+                <a href="/profile" class="btn">View / Edit Profile</a>
+                <a href="/userForm" class="btn">Reserve a Table</a>
+                <a href="/confirmation" class="btn">View Reservation</a>
+                <br><br>
+                <center>
                   <form action = "/logout?_method=DELETE" method="POST">
-                      <a href="/logout" class="btn">Log Out</button>
+                      <a href="/logout" class="btn">Log Out</a>
                   </form>
+                </center>
             </div>
         </div>
     </div>
