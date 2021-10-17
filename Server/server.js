@@ -22,13 +22,18 @@ mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_
     console.log('Connected to Database!');
 }).catch(err => console.log(err));
 
-// const userInfoSchema = new mongoose.Schema({
-//     username: { type: String, required: true },
-//     password: { type: String, required: true },
-//     new_user: { type: Boolean, default: true},
-// });
+const userSchema = new mongoose.Schema({ 
+    full_name: { type: String, required: true }, 
+    street1: { type: String, required: true },
+    street2: String,
+    city: { type: String, required: true }, 
+    zip: { type: Number, required: true },
+    state: { type: String, required: true },
+    username: { type: String, required: true }
+});
 
 const UserInfo = require('./models/UserInfo')
+const User = mongoose.model("User", userSchema);
 
 const users = []
 
@@ -45,13 +50,24 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
 
+
+let userInfo = {
+    full_name: '', 
+    street1: '', 
+    street2: 'N/A',
+    state: '',
+    city: '', 
+    zip: ''
+};
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
     const filter = { username: req.user.username }
     if(req.user.new_user){
+        ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
         const update = { new_user: false }
         await UserInfo.findOneAndUpdate(filter, update)
-        res.redirect('/editProfile')
+        //////// END
+        res.redirect('/')
     }
     else{
         await User.find(filter).then(async (info) => {
