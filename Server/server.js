@@ -296,22 +296,6 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
-    // const filter = { username:req.user.username };
-    // await Reservation.find(filter).then((reservations) => {
-    //     var i = 0;
-    //     for (i = 0; i < reservations.length; i++){
-    //         hist.push({
-    //             name: reservations.name,
-    //             phone_num: reservations.phone_num,
-    //             email: reservation.email,
-    //             date: reservation.date,
-    //             time: reservation.time,
-    //             num_guests: reservation.num_guests,
-    //             table_num: reservation.table_num
-    //         })
-    //     }
-    //     console.log(hist);
-    // })
     await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
         const p_date = parseDate(lastReservation.date);
         reservation = {
@@ -324,13 +308,27 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
             table_num: lastReservation.table_num,
         }
     })
-    console.log("\napp.get('/confirmation') reservation")
-    console.log(reservation);
+    // console.log("\napp.get('/confirmation') reservation")
+    // console.log(reservation);
     res.render('confirmation.ejs', { data: reservation });
 })
 // GUEST CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
-    res.render('guestPreConfirm.ejs')
+    await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
+        const p_date = parseDate(lastReservation.date);
+        reservation = {
+            name: lastReservation.name,
+            phone_num: lastReservation.phone_num,
+            email: lastReservation.email,
+            date: p_date,
+            time: lastReservation.time,
+            num_guests: lastReservation.num_guests,
+            table_num: lastReservation.table_num,
+        }
+    })
+    console.log("\napp.get('/guestPreconfirmation') reservation")
+    console.log(reservation);
+    res.render('guestPreConfirm.ejs', { data: reservation });
 })
 
 // LOGOUT

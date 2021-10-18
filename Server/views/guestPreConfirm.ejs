@@ -13,7 +13,7 @@
     <div class="left">
         <img src="css/profile.png" 
         alt="user" width="100">
-        <h4>Raj Singh</h4>
+        <h4><%= data.name %></h4>
     </div>
     <div class="right">
         <div class="info">
@@ -21,35 +21,39 @@
             <div class="info_data">
                  <div class="data">
                     <h4>Email</h4>
-                    <p>rajsingh@gmail.com</p>
+                    <p><%= data.email %></p>
                  </div>
                  <div class="data">
                    <h4>Phone</h4>
-                    <p>123-456-7890</p>
+                    <p><%= data.phone_num %></p>
               </div>
             </div>
         </div>
       
       <div class="projects">
-            <h3>Reservation</h3>
-            <div class="projects_data">
-                 <div class="data">
-                    <h4>Date</h4>
-                    <p>06/22/2022</p>
-                 </div>
-                 <div class="data">
-                   <h4>Time</h4>
-                    <p>4:00pm</p>
-              </div>
-                  <div class="data">
-                    <h4>#ofGuests</h4>
-                     <p>3</p>
-             </div>
+        <h3>Reservation</h3>
+          <div class="projects_data">
+            <div class="data">
+              <h4>Date</h4>
+              <p><%= data.date %></p>
             </div>
-        </div>
-        <p>Do you wish to create an account before finalizing your reservation? </p><br>
-        <button type = "button" class = "btn btn-primary btn-sm" onClick="location.href='/register'">Yes</button>
-        <button type = "button" class = "btn btn-secondary btn-sm" onClick="location.href='/guestPreConfirm'">No</button>
+            <div class="data">
+              <h4>Time</h4>
+              <p><%= data.time %></p>
+            </div>
+            <div class="data">
+              <h4># of Guests</h4>
+              <p><%= data.num_guests %></p>
+            </div>
+            <div class="data">
+              <h4>Table #</h4>
+              <p><%= data.table_num %></p>
+            </div>
+          </div>
+      </div>
+      <p>Do you wish to create an account before finalizing your reservation? </p><br>
+      <button type = "button" class = "btn btn-primary btn-sm" onClick="location.href='/register'">Yes</button>
+      <button type = "button" class = "btn btn-secondary btn-sm" onClick="location.href='/guestPreConfirm'">No</button>
     </div>
 </div>
 </div>
