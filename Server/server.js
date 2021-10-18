@@ -120,6 +120,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
             //     zip: info[0].zip
             // };
         })
+        // TODO: Say "Welcome, NAME" instead of "Welcome, username"
         res.render('index.ejs', { name: req.user.username });
     }
     //res.render('index.ejs', {name: req.user.username});
