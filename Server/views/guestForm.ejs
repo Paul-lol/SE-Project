@@ -34,7 +34,7 @@
 						<input id="date_id" type="date" name="date_res" min= "<%= min_date %>" onchange="updateMinTime()" placeholder="Select date for booking" required=true>
 					</div>
 					<div class="form_group">
-						<label>Time</label>
+						<label>Time (Operating Hours: 11am - 10pm)</label>
 						<input id="set_time" type="time" name="time" min="10:00" max="21:00" placeholder="Select time for booking" required>
 					</div>
 					<div class="form_group">
@@ -62,13 +62,11 @@
 	</div>
 </body>
 <!-- 
-
 	// Minimum Reservation Time
 	// By default: 10:00 AM
 	// On same day: Current time + 1 hour
 	// Maximum Reservation time
 	// By default: 1 hour before closing. Closing at 10:00 PM so MAX = "21:00"
-
 -->
 <script>
 	function updateMinTime(){
