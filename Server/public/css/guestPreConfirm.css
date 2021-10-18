@@ -22,7 +22,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
-  width: 450px;
+  width: 650px;
   display: flex;
   box-shadow: 0 1px 20px 0 rgba(69,90,100,.08);
 }
@@ -95,6 +95,16 @@
   font-size: 13px;
   margin-bottom: 10px;
   color: #919aa3;
+}
+
+.btn1{
+  background-color: #4CAF50; 
+  font-size: 20px;
+}
+
+.btn2{
+  background-color: #f44336; 
+  font-size: 20px;
 }
 
 @media only screen and (max-width: 1920px) {
