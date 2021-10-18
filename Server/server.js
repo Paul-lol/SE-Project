@@ -54,6 +54,7 @@ const User = mongoose.model("User", userSchema);
 const Reservation = mongoose.model("Reservation", reservationSchema);
 
 const users = []
+const hist = []
 let userInfo = {
     name: '',
     mail_street1: '',
@@ -110,10 +111,9 @@ app.get('/', checkAuthenticated, async (req, res) => {
         res.redirect('/editProfile')
     }
     else{
-        console.log(filter)
+        //console.log(filter)
         await UserInfo.find(filter).then(async (info) => {
-            console.log("info");
-            console.log(info);
+            //console.log(info);
             // TO-DO
             // userInfo = { 
             //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
@@ -256,14 +256,10 @@ app.post('/guestForm', async (req,res) => {
         table_num: reservation.table_num,
         username: "guest"
     })
+    console.log("\nGuest Reservation")
     console.log(reservation)
     await newReservation.save();
     res.redirect('/guestPreConfirm')
-})
-
-// GUEST CONFIRMATION
-app.get('/guestPreConfirm', (req, res) => {
-    res.render('guestPreConfirm.ejs')
 })
 
 // USER FORM
@@ -292,16 +288,50 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         table_num: reservation.table_num,
         username: req.user.username
     })
+    console.log("\nUser Reservation")
     console.log(reservation)
     await newReservation.save();
-    res.redirect('/confirmation')
+    res.redirect('/confirmation');
 })
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
-    res.render('confirmation.ejs')
+    // const filter = { username:req.user.username };
+    // await Reservation.find(filter).then((reservations) => {
+    //     var i = 0;
+    //     for (i = 0; i < reservations.length; i++){
+    //         hist.push({
+    //             name: reservations.name,
+    //             phone_num: reservations.phone_num,
+    //             email: reservation.email,
+    //             date: reservation.date,
+    //             time: reservation.time,
+    //             num_guests: reservation.num_guests,
+    //             table_num: reservation.table_num
+    //         })
+    //     }
+    //     console.log(hist);
+    // })
+    await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
+        const p_date = parseDate(lastReservation.date);
+        reservation = {
+            name: lastReservation.name,
+            phone_num: lastReservation.phone_num,
+            email: lastReservation.email,
+            date: p_date,
+            time: lastReservation.time,
+            num_guests: lastReservation.num_guests,
+            table_num: lastReservation.table_num,
+        }
+    })
+    console.log("\napp.get('/confirmation') reservation")
+    console.log(reservation);
+    res.render('confirmation.ejs', { data: reservation });
 })
-
+// GUEST CONFIRMATION
+app.get('/guestPreConfirm', async(req, res) => {
+    res.render('guestPreConfirm.ejs')
+})
 
 // LOGOUT
 app.get('/logout', (req, res) => {
@@ -349,6 +379,14 @@ function getMinDate(){
         }
     }
     return min_date;
+}
+
+// PARSE DATE
+function parseDate(isoDate){
+    var date = new Date(isoDate);
+    var parsedDate = date.getUTCFullYear() + "-" + date.getUTCMonth() + "-" + date.getUTCDay()
+    console.log("\nparsedDate: " + parsedDate)
+    return parsedDate;
 }
 
 app.listen(3000)
