@@ -30,9 +30,12 @@ const userSchema = new mongoose.Schema({
     mail_street2: String,
     bill_street1: { type: String, required: true },
     bill_street2: String,
-    city: { type: String, required: true }, 
-    zip: { type: Number, required: true },
-    state: { type: String, required: true },
+    city_mail: { type: String, required: true },
+    city_bill: { type: String, required: true }, 
+    zip_mail: { type: Number, required: true },
+    zip_bill: { type: Number, required: true },
+    state_mail: { type: String, required: true },
+    state_bill: { type: String, required: true },
     points: { type: Number, required: true },
     preferred_payment: { type: String, required: true },
     username: { type: String, required: true }
@@ -54,27 +57,21 @@ const User = mongoose.model("User", userSchema);
 const Reservation = mongoose.model("Reservation", reservationSchema);
 
 const users = []
-const hist = []
 let userInfo = {
     name: '',
     mail_street1: '',
     mail_street2: '',
     bill_street1: '',
     bill_street2: '',
-    city: '',
-    zip: '',
-    state: '',
+    city_mail: '',
+    city_bill: '',
+    zip_mail: '',
+    zip_bill: '',
+    state_mail: '',
+    state_bill: '',
     points: 0,
     preferred_payment: 'Cash'
 };
-// TODO - CHANGE TO FIT RESERVATIONS SCHEMA
-// function Reservation_(gallons, d_address, d_date, price_per) { 
-//     this.gallons = gallons; 
-//     this.d_address = d_address;
-//     this.d_date = d_date;
-//     this.price_per = price_per;
-//     this.total = gallons * price_per;
-// }
 let reservation = {
     name: '',
     phone_num: '',
@@ -84,7 +81,6 @@ let reservation = {
     num_guests: '0',
     table_num: '0'
 };
-
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -124,7 +120,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
             //     zip: info[0].zip
             // };
         })
-        res.render('index.ejs', {name: req.user.username});
+        res.render('index.ejs', { name: req.user.username });
     }
     //res.render('index.ejs', {name: req.user.username});
 })
@@ -174,13 +170,53 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
 })
 
 // PROFILE
-app.get('/profile', checkAuthenticated, (req,res) => {
-    res.render('profile.ejs', {full_name: userInfo.full_name, 
-    street1: userInfo.street1, 
-    street2: userInfo.street2,
-    state: userInfo.state,
-    city: userInfo.city,
-    zip: userInfo.zip});
+// let userInfo = {
+//     name: '',
+//     mail_street1: '',
+//     mail_street2: '',
+//     bill_street1: '',
+//     bill_street2: '',
+//     city: '',
+//     zip: '',
+//     state: '',
+//     points: 0,
+//     preferred_payment: 'Cash'
+// };
+app.get('/profile', checkAuthenticated, async (req,res) => {
+    const filter = { username: req.user.username };
+    await User.findOne(filter).then((profileInfo) => {
+        let f_name = getFirstName(profileInfo.name)
+        let l_name = getLastName(profileInfo.name)
+        var information = {
+            first_name: f_name,
+            last_name: l_name,
+            mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
+            billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
+            city_mailing: profileInfo.city_mail,
+            city_billing: profileInfo.city_bill,
+            zip_mailing: profileInfo.zip_mail,
+            zip_billing: profileInfo.zip_bill,
+            state_mailing: profileInfo.state_mail,
+            state_billing: profileInfo.state_bill,
+            preferred_payment: profileInfo.preferred_payment,
+
+            // TODO - FIX POINTS
+            points: profileInfo.points
+        }
+        console.log("\nInformation: ")
+        console.log(information)
+        // userInfo = {
+        //     name: lastReservation.name,
+        //     phone_num: lastReservation.phone_num,
+        //     email: lastReservation.email,
+        //     date: p_date,
+        //     time: lastReservation.time,
+        //     num_guests: lastReservation.num_guests,
+        //     table_num: lastReservation.table_num,
+        // }
+        res.render('profile.ejs', { data: information })
+    })
+    //res.render('profile.ejs', { data: information })
 })
 
 // EDIT PROFILE
@@ -198,9 +234,12 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         mail_street2: req.body.street2,
         bill_street1: '',
         bill_street2: '',   
-        city: req.body.city,
-        zip: req.body.zip,
-        state: req.body.state,
+        city_mail: req.body.city,
+        city_bill: '',
+        zip_mail: req.body.zip,
+        zip_bill: '',
+        state_mail: req.body.state,
+        state_bill: '',
         // TODO - DONT UPDATE POINTS, KEEP THE SAME
         // Fetch points beforehand first from database then set points to that before updating in database
         points: 9999,
@@ -212,6 +251,9 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
     if(req.body.bill_same == 'on'){
         userInfo.bill_street1 = userInfo.mail_street1;
         userInfo.bill_street2 = userInfo.mail_street2;
+        userInfo.zip_bill = userInfo.zip_mail;
+        userInfo.state_bill = userInfo.state_mail;
+        userInfo.city_bill = userInfo.city_mail;
     }
     // Insert into database
     const user = await User.updateOne(filter, {
@@ -220,9 +262,12 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         mail_street2: userInfo.mail_street2,
         bill_street1: userInfo.bill_street1,
         bill_street2: userInfo.bill_street2,
-        city: userInfo.city,
-        zip: userInfo.zip,
-        state: userInfo.state,
+        city_mail: userInfo.city_mail,
+        city_bill: userInfo.city_bill,
+        zip_mail: userInfo.zip_mail,
+        zip_bill: userInfo.zip_bill,
+        state_mail: userInfo.state_mail,
+        state_bill: userInfo.state_bill,
         points: userInfo.points,
         preferred_payment: userInfo.preferred_payment,
         username: userInfo.username
@@ -297,37 +342,61 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
     await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
-        const p_date = parseDate(lastReservation.date);
-        reservation = {
-            name: lastReservation.name,
-            phone_num: lastReservation.phone_num,
-            email: lastReservation.email,
-            date: p_date,
-            time: lastReservation.time,
-            num_guests: lastReservation.num_guests,
-            table_num: lastReservation.table_num,
+        console.log("\nLatest Reservation")
+        console.log(lastReservation)
+        if(lastReservation == null){
+            reservation = {
+                name: 'No Reservation Found',
+                phone_num: 'N/A',
+                email: 'N/A',
+                date: 'N/A',
+                time: 'N/A',
+                num_guests: 'N/A',
+                table_num: 'N/A',
+            }
+        } else {
+            const p_date = parseDate(lastReservation.date);
+            reservation = {
+                name: lastReservation.name,
+                phone_num: lastReservation.phone_num,
+                email: lastReservation.email,
+                date: p_date,
+                time: lastReservation.time,
+                num_guests: lastReservation.num_guests,
+                table_num: lastReservation.table_num
+            }
         }
     })
-    // console.log("\napp.get('/confirmation') reservation")
-    // console.log(reservation);
     res.render('confirmation.ejs', { data: reservation });
 })
 // GUEST CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
     await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
-        const p_date = parseDate(lastReservation.date);
-        reservation = {
-            name: lastReservation.name,
-            phone_num: lastReservation.phone_num,
-            email: lastReservation.email,
-            date: p_date,
-            time: lastReservation.time,
-            num_guests: lastReservation.num_guests,
-            table_num: lastReservation.table_num,
+        console.log("\nLatest Reservation")
+        console.log(lastReservation)
+        if(lastReservation == null){
+            reservation = {
+                name: 'No Reservation Found',
+                phone_num: 'N/A',
+                email: 'N/A',
+                date: 'N/A',
+                time: 'N/A',
+                num_guests: 'N/A',
+                table_num: 'N/A',
+            }
+        } else {
+            const p_date = parseDate(lastReservation.date);
+            reservation = {
+                name: lastReservation.name,
+                phone_num: lastReservation.phone_num,
+                email: lastReservation.email,
+                date: p_date,
+                time: lastReservation.time,
+                num_guests: lastReservation.num_guests,
+                table_num: lastReservation.table_num
+            }
         }
     })
-    console.log("\napp.get('/guestPreconfirmation') reservation")
-    console.log(reservation);
     res.render('guestPreConfirm.ejs', { data: reservation });
 })
 
@@ -385,10 +454,26 @@ function getMinDate(){
 //        use getDate to return the day date
 function parseDate(isoDate){
     var date = new Date(isoDate);
-    console.log("day: " + date.getDate());
     var parsedDate = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getDate();
-    console.log("\nparsedDate: " + parsedDate);
     return parsedDate;
 }
 
-app.listen(3000)
+// PARSE FIRST NAME
+function getFirstName(full_name){
+    const nameArr = full_name.split(" ");
+    var first_name = nameArr[0];
+    for (var i = 1; i < nameArr.length - 2; i++){
+        first_name = first_name + " " + nameArr[i]
+    }
+    // console.log("first name: " + first_name);
+    return first_name;
+}
+// PARSE LAST NAME
+function getLastName(full_name){
+    const nameArr = full_name.split(" ");
+    const last_name = nameArr[nameArr.length - 1];
+    // console.log("last name: " + last_name);
+    return last_name;
+}
+
+app.listen(3000);

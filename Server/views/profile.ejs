@@ -31,11 +31,11 @@
   <div class="row g-3">
     <div class="col-sm-6"> 
       <label for="first_name_id" class="control-label">First Name:</label>
-      <h2> Osinor </h2>
+      <h2> <%= data.first_name %> </h2>
     </div>
     <div class="col-sm-6"> 
       <label for="last_name_id" class="control-label">Last Name:</label>
-      <h2> Singh </h2>
+      <h2> <%= data.last_name %> </h2>
     </div>
   </div>
 </div>
@@ -46,52 +46,66 @@
       <div class="form-group" >
                 <!-- Street 1 -->
                 <label for="street1_id" class="control-label">Street Address: </label>
-                <h2> 13442 Grand Cricle Boulevard </h2>
+                <h2> <%= data.mailing_address %> </h2>
             </div>
         
             <div class="form-group">
                 <!-- City-->
                 <label for="city_id" class="control-label">City:</label>
-                <h2> Houston </h2>
+                <h2> <%= data.city_mailing %> </h2>
             </div>
 
             <div class="form-group">
                 <!-- State Button -->
                 <label for="state_id" class="control-label">State: </label>
-                <h2> Texas </h2>
+                <h2> <%= data.state_mailing %> </h2>
             </div>
 
             <div class="form-group">
                 <!-- Zip Code-->
                 <label for="zip_id" class="form-check-label">Zip Code</label>
-                <h2> 77077 </h2>
+                <h2> <%= data.zip_mailing %> </h2>
                 <br>
             </div>
+            <!-- 
+            first_name: f_name,
+            last_name: l_name,
+            mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
+            billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
+            city_mailing: profileInfo.city_mail,
+            city_billing: profileInfo.city_bill,
+            zip_mailing: profileInfo.zip_mail,
+            zip_billing: profileInfo.zip_bill,
+            state_mailing: profileInfo.state_mail,
+            state_billing: profileInfo.state_bill,
+            preferred_payment: profileInfo.preferred_payment,
+            points: profileInfo.points
+             -->
   </div>
   <div class="col-sm-6">
     <h1> Billing Address </h1>
 <div class="form-group" >
             <!-- Street 1 -->
             <label for="street1_id" class="control-label">Street Address: </label>
-            <h2> 13442 Grand Cricle Boulevard </h2>
+            <h2> <%= data.billing_address %> </h2>
         </div>
     
         <div class="form-group">
             <!-- City-->
             <label for="city_id" class="control-label">City:</label>
-            <h2> Houston </h2>
+            <h2> <%= data.city_billing %> </h2>
         </div>
 
         <div class="form-group">
             <!-- State Button -->
             <label for="state_id" class="control-label">State: </label>
-            <h2> Texas </h2>
+            <h2> <%= data.state_billing %> </h2>
         </div>
 
         <div class="form-group">
             <!-- Zip Code-->
             <label for="zip_id" class="form-check-label">Zip Code</label>
-            <h2> 77077 </h2>
+            <h2> <%= data.zip_billing %> </h2>
             <br>
         </div>
   </div>
@@ -104,12 +118,12 @@
 
         <div class="form-group">
           <label > Preferred Payment Method:  </label>
-          <h2> Cash </h2>
+          <h2> <%= data.preferred_payment %> </h2>
         </div>
 
         <div class="form-group">
-          <label> Points Earned:  </label>
-          <h2> 62 pasta points </h2>
+          <label> Pasta Points Earned:  </label>
+          <h2> <%= data.points %> points </h2>
         </div>
 
 
