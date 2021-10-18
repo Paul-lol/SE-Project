@@ -152,6 +152,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         if (users.length > 0){
             // console.log(users.length);
             //users.splice(0, users.length);
+            console.log('Username already exists')
             res.redirect('/register');
         } else{
             const userInfo = new UserInfo ({
@@ -168,6 +169,42 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         console.error(error);
         res.redirect('/register')
     }
+})
+
+// GUEST REGISTER 
+app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
+    res.render('guestRegister.ejs')
+})
+app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
+        users.push({
+            id: Date.now().toString(),
+            inputUsername : req.body.inputUsername,
+            inputPassword : hashedPassword
+        })
+        await UserInfo.find({ username: req.body.inputUsername }).then((users) =>{
+          if (users.length > 0){
+              // console.log(users.length);
+              //users.splice(0, users.length);
+              console.log('Username already exists')
+              res.redirect('/guestRegister');
+          } else{
+              const userInfo = new UserInfo ({
+                  username: req.body.inputUsername,
+                  password: hashedPassword,
+                  new_user: true 
+              })
+              userInfo.save();
+              console.log(userInfo);
+              //TODO: Redirect guestPreConfirm to guestConfirm
+              res.redirect('/guestPreConfirm')
+          }
+      })
+      } catch(error) {
+          console.error(error);
+          res.redirect('/guestRegister')
+      }
 })
 
 // PROFILE
@@ -370,7 +407,8 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
     })
     res.render('confirmation.ejs', { data: reservation });
 })
-// GUEST CONFIRMATION
+
+// GUEST PRE-CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
     await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
         console.log("\nLatest Reservation")
@@ -410,10 +448,6 @@ app.delete('/logout', (req, res) => {
     req.logOut()
     res.redirect('/login')
 })
-
-
-
-
 
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
