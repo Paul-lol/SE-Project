@@ -382,10 +382,14 @@ function getMinDate(){
 }
 
 // PARSE DATE
+// Notes: getMonth() start from 0
+//        getDay() -> The value returned by getDay is an integer corresponding to the day of the week: 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on.
+//        use getDate to return the day date
 function parseDate(isoDate){
     var date = new Date(isoDate);
-    var parsedDate = date.getUTCFullYear() + "-" + date.getUTCMonth() + "-" + date.getUTCDay()
-    console.log("\nparsedDate: " + parsedDate)
+    console.log("day: " + date.getDate());
+    var parsedDate = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getDate();
+    console.log("\nparsedDate: " + parsedDate);
     return parsedDate;
 }
 
