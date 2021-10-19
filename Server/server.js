@@ -99,6 +99,7 @@ app.use(methodOverride('_method'))
 app.get('/', checkAuthenticated, async (req, res) => {
     const filter = { username: req.user.username }
     //console.log(filter)
+    // username, password, new_user 
     if(req.user.new_user){
         ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
         const update = { new_user: false }
@@ -398,6 +399,7 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
 
 // GUEST PRE-CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
+    // guest1234 
     await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
         console.log("\nLatest Reservation")
         console.log(lastReservation)
