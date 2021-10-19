@@ -73,7 +73,10 @@
   letter-spacing: 5px;
 }
 
-.wrapper .right .info_data,
+.wrapper .right .info_data{
+  justify-content: flex-start;
+}
+
 .wrapper .right .projects_data{
   display: flex;
   justify-content: space-between;
