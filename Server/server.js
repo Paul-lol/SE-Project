@@ -208,18 +208,6 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
 })
 
 // PROFILE
-// let userInfo = {
-//     name: '',
-//     mail_street1: '',
-//     mail_street2: '',
-//     bill_street1: '',
-//     bill_street2: '',
-//     city: '',
-//     zip: '',
-//     state: '',
-//     points: 0,
-//     preferred_payment: 'Cash'
-// };
 app.get('/profile', checkAuthenticated, async (req,res) => {
     const filter = { username: req.user.username };
     await User.findOne(filter).then((profileInfo) => {

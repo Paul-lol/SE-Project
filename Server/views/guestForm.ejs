@@ -34,7 +34,7 @@
 						<input id="date_id" type="date" name="date_res" min= "<%= min_date %>" onchange="updateMinTime()" placeholder="Select date for booking" required=true>
 					</div>
 					<div class="form_group">
-						<label>Time (Operating Hours: 11am - 10pm)</label>
+						<label>Time (Operating Hours: 10am - 10pm)</label>
 						<input id="set_time" type="time" name="time" min="10:00" max="21:00" placeholder="Select time for booking" required>
 					</div>
 					<div class="form_group">
@@ -77,9 +77,6 @@
 		let currentHour = cDate.getHours() + 1
 		let currentMinute = cDate.getMinutes()
 		let min_time = currentHour + ":" + currentMinute
-		// console.log("min_date: " + min_date)
-		// console.log("currDate: " + currDate)
-		// console.log(currDate == min_date)
 		if(currDate == min_date){
 			if(currentHour < 10){
 				min_time = '0' + currentHour
