@@ -51,13 +51,25 @@
             </div>
           </div>
       </div>
-      
+      <div id = "myDIV">
       <p>Do you wish to create an account before finalizing your reservation? </p><br>
       <button type = "button" class = "btn1" onClick="location.href='/guestRegister'">Yes</button>
-      <button type = "button" class = "btn2" onClick="location.href='/guestPreConfirm'">No</button>
+      <button type = "button" class = "btn2" onclick="confirm()">No</button>
+      </div>
     </div>
 </div>
 </div>
-
+<script>
+  function confirm() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+      alert("Your table reservation is now CONFIRMED.\nThank you for choosing Pasta Consigliere!");
+    }
+  }
+  </script>
+  
 </body>
 </html>
