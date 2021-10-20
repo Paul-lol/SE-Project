@@ -97,19 +97,13 @@ app.use(methodOverride('_method'))
 
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
-    const filter = { username: req.user.username }
-    //console.log(filter)
-    // username, password, new_user 
+    // req.user = { username, password, new_user }
     if(req.user.new_user){
-        ///////// BEGIN - THIS CODE should be in edit profile (in case user never finishes profile registration)
-        const update = { new_user: false }
-        await UserInfo.findOneAndUpdate(filter, update)
-        //////// END
         res.redirect('/editProfile')
     }
     else{
         //console.log(filter)
-        await UserInfo.find(filter).then(async (info) => {
+        await UserInfo.find({ username: req.user.username }).then(async (info) => {
             //console.log(info);
             // TO-DO
             // userInfo = { 
@@ -210,8 +204,11 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
 
 // PROFILE
 app.get('/profile', checkAuthenticated, async (req,res) => {
-    const filter = { username: req.user.username };
-    await User.findOne(filter).then((profileInfo) => {
+    if(req.user.new_user){
+        res.redirect('/editProfile')
+    } else {
+        const filter = { username: req.user.username };
+        await User.findOne(filter).then((profileInfo) => {
         let f_name = getFirstName(profileInfo.name)
         let l_name = getLastName(profileInfo.name)
         var information = {
@@ -243,8 +240,7 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
         // }
         res.render('profile.ejs', { data: information })
     })
-    //res.render('profile.ejs', { data: information })
-})
+}})
 
 // EDIT PROFILE
 app.get('/editProfile', checkAuthenticated, (req, res) => {
@@ -299,6 +295,8 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         preferred_payment: userInfo.preferred_payment,
         username: userInfo.username
     }, { upsert: true });
+    const update = { new_user: false }
+    await UserInfo.findOneAndUpdate(filter, update)
     console.log(userInfo)
     res.redirect('/profile');
 })
@@ -337,9 +335,13 @@ app.post('/guestForm', async (req,res) => {
 
 // USER FORM
 app.get('/userForm', checkAuthenticated, async (req, res) => {
-    let min_date = getMinDate()
-    //res.render('fuel_quote.ejs', {user: userInfo, min_date});
-    res.render('userForm.ejs', {user: userInfo, min_date});
+    if(req.user.new_user){
+        res.redirect('/editProfile')
+    } else {
+        let min_date = getMinDate()
+        //res.render('fuel_quote.ejs', {user: userInfo, min_date});
+        res.render('userForm.ejs', {user: userInfo, min_date});
+    }
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     reservation = {
@@ -371,33 +373,37 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
-    await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
-        console.log("\nLatest Reservation")
-        console.log(lastReservation)
-        if(lastReservation == null){
-            reservation = {
-                name: 'No Reservation Found',
-                phone_num: 'N/A',
-                email: 'N/A',
-                date: 'N/A',
-                time: 'N/A',
-                num_guests: 'N/A',
-                table_num: 'N/A',
+    if(req.user.new_user){
+        res.redirect('/editProfile')
+    } else {
+        await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
+            console.log("\nLatest Reservation")
+            console.log(lastReservation)
+            if(lastReservation == null){
+                reservation = {
+                    name: 'No Reservation Found',
+                    phone_num: 'N/A',
+                    email: 'N/A',
+                    date: 'N/A',
+                    time: 'N/A',
+                    num_guests: 'N/A',
+                    table_num: 'N/A',
+                }
+            } else {
+                const p_date = parseDate(lastReservation.date);
+                reservation = {
+                    name: lastReservation.name,
+                    phone_num: lastReservation.phone_num,
+                    email: lastReservation.email,
+                    date: p_date,
+                    time: lastReservation.time,
+                    num_guests: lastReservation.num_guests,
+                    table_num: lastReservation.table_num
+                }
             }
-        } else {
-            const p_date = parseDate(lastReservation.date);
-            reservation = {
-                name: lastReservation.name,
-                phone_num: lastReservation.phone_num,
-                email: lastReservation.email,
-                date: p_date,
-                time: lastReservation.time,
-                num_guests: lastReservation.num_guests,
-                table_num: lastReservation.table_num
-            }
-        }
-    })
-    res.render('confirmation.ejs', { data: reservation });
+        })
+        res.render('confirmation.ejs', { data: reservation });
+    }
 })
 
 // GUEST PRE-CONFIRMATION
