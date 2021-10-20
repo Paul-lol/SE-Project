@@ -102,10 +102,9 @@ app.get('/', checkAuthenticated, async (req, res) => {
         res.redirect('/editProfile')
     }
     else{
-        //console.log(filter)
-        await UserInfo.find({ username: req.user.username }).then(async (info) => {
-            //console.log(info);
-            // TO-DO
+        // Say "Welcome, NAME" instead of "Welcome, username"
+        await User.findOne({ username: req.user.username }, 'name').then(async (info) => {
+            console.log("First Name: " + getFirstName(info.name))
             // userInfo = { 
             //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
             //     street1: info[0].street1,
@@ -114,11 +113,9 @@ app.get('/', checkAuthenticated, async (req, res) => {
             //     city: info[0].city,
             //     zip: info[0].zip
             // };
+            res.render('index.ejs', { name: getFirstName(info.name) });
         })
-        // TODO: Say "Welcome, NAME" instead of "Welcome, username"
-        res.render('index.ejs', { name: req.user.username });
     }
-    //res.render('index.ejs', {name: req.user.username});
 })
 
 // LOGIN
