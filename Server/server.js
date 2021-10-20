@@ -198,6 +198,11 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
           res.redirect('/guestRegister')
       }
 })
+// }, passport.authenticate('local', {
+//     successRedirect: '/',
+//     failureRedirect: '/login',
+//     failureFlash: true
+// }))
 
 // PROFILE
 app.get('/profile', checkAuthenticated, async (req,res) => {
@@ -521,8 +526,6 @@ function getLastName(full_name){
 const highTrafficDays = ["1-1", "2-14", "5-8", "5-31", "6-20", "7-4", "9-6", "9-11", "11-11", "11-25", "12-25"]
 function isHighTraffic(date){
     const month_and_day = (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-    console.log("Month and Day (mm-dd): " + month_and_day);
-    console.log("getUTCDay: " + date.getUTCDay())
     if(date.getUTCDay() == 6 || date.getUTCDay() == 0){
         return true
     } else {
