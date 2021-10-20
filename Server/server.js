@@ -314,10 +314,11 @@ app.post('/guestForm', async (req,res) => {
         phone_num: req.body.phone,
         email: req.body.email,
         date: req.body.date_res,
-        time: req.body.time,
+        time: req.body.set_hr + ":" + req.body.set_min,
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
+    // console.log(req.body.set_hr + ":" + req.body.set_min)
     const newReservation = new Reservation({
         name: reservation.name,
         phone_num: reservation.phone_num,
@@ -345,16 +346,22 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
         res.render('userForm.ejs', {user: userInfo, min_date});
     }
 })
+// possible solution: when reservation slot is already taken, redirect/refresh userForm page and show a message.
+//                    use local global boolean to set a flag (reservationUnavailable initially set to false) 
+//                    to be used in .get(/userform) to check before displaying error message
+//                    On redirection, change flag back to false as user attempts to find another available reservation
+
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     reservation = {
         name: req.body.name,
         phone_num: req.body.phone,
         email: req.body.email,
         date: req.body.date_res,
-        time: req.body.time,
+        time: req.body.set_hr + ":" + req.body.set_min,
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
+    console.log(req.body.set_hr + ":" + req.body.set_min)
     const newReservation = new Reservation({
         name: reservation.name,
         phone_num: reservation.phone_num,
@@ -365,8 +372,8 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         table_num: reservation.table_num,
         username: req.user.username
     })
-    // console.log("\nnewReservation")
-    // console.log(newReservation)
+    console.log("\nnewReservation")
+    console.log(newReservation)
     const highTraffic = isHighTraffic(newReservation.date);
     // console.log("\nis " + newReservation.date + " a high traffic day? " + highTraffic)
     await newReservation.save();
