@@ -328,8 +328,9 @@ app.post('/guestForm', async (req,res) => {
         table_num: reservation.table_num,
         username: "guest"
     })
-    console.log("\nGuest Reservation")
-    console.log(reservation)
+    // console.log("\nGuest Reservation")
+    // console.log(reservation)
+    const highTraffic = isHighTraffic(newReservation.date);
     await newReservation.save();
     res.redirect('/guestPreConfirm')
 })
