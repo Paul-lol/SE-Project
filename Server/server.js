@@ -104,7 +104,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
     else{
         // Say "Welcome, NAME" instead of "Welcome, username"
         await User.findOne({ username: req.user.username }, 'name').then(async (info) => {
-            console.log("First Name: " + getFirstName(info.name))
+            // console.log("First Name: " + getFirstName(info.name))
             // userInfo = { 
             //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
             //     street1: info[0].street1,
@@ -229,8 +229,8 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
             // TODO - FIX POINTS
             points: profileInfo.points
         }
-        console.log("\nInformation: ")
-        console.log(information)
+        // console.log("\nInformation: ")
+        // console.log(information)
         // userInfo = {
         //     name: lastReservation.name,
         //     phone_num: lastReservation.phone_num,
@@ -379,8 +379,8 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
         res.redirect('/editProfile')
     } else {
         await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
-            console.log("\nLatest Reservation")
-            console.log(lastReservation)
+            // console.log("\nLatest Reservation")
+            // console.log(lastReservation)
             if(lastReservation == null){
                 reservation = {
                     name: 'No Reservation Found',
