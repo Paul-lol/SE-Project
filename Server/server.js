@@ -328,7 +328,7 @@ app.post('/guestForm', async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
-    await Reservation.countDocuments({ date: reservation.date, time: reservation.time }).then(async (count) => {
+    await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
@@ -386,7 +386,7 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
-    await Reservation.countDocuments({ date: reservation.date, time: reservation.time }).then(async (count) => {
+    await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
