@@ -320,7 +320,7 @@ app.get('/guestForm', async (req, res) => {
         reservationMessage = "";
     } else if (reservationUnavailable){
         // TODO: Insert validations here if the reservation is unavailable - display message in view
-        reservationMessage = "That reservation slot is already taken. Please select a different date/time."
+        reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
         reservationUnavailable = false;
     }
     let min_date = getMinDate()
@@ -371,7 +371,7 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
             reservationMessage = "";
         } else if (reservationUnavailable){
             // TODO: Insert validations here if the reservation is unavailable - display message in view
-            reservationMessage = "That reservation slot is already taken.\nPlease select a different date/time."
+            reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
             reservationUnavailable = false;
         }
         let min_date = getMinDate()
