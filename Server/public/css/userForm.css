@@ -143,3 +143,8 @@ select {
 	height: 35px;
 	margin: 10px;
 }
+
+#timeslot_error {
+	font-size: 30px;
+	color:rgba(192, 0, 0, 0.69)
+}

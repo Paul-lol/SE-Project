@@ -303,10 +303,20 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
     res.redirect('/profile');
 })
 
+// bool for guestForm and userForm
+let reservationMessage = ""
+let reservationUnavailable = false
 // GUEST FORM
 app.get('/guestForm', async (req, res) => {
+    if (!reservationUnavailable){
+        reservationMessage = "";
+    } else if (reservationUnavailable){
+        // TODO: Insert validations here if the reservation is unavailable - display message in view
+        reservationMessage = "That reservation slot is already taken. Please select a different date/time."
+        reservationUnavailable = false;
+    }
     let min_date = getMinDate()
-    res.render('guestForm.ejs', {user: userInfo, min_date});
+    res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
 })
 app.post('/guestForm', async (req,res) => {
     reservation = {
@@ -318,22 +328,30 @@ app.post('/guestForm', async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
-    // console.log(req.body.set_hr + ":" + req.body.set_min)
-    const newReservation = new Reservation({
-        name: reservation.name,
-        phone_num: reservation.phone_num,
-        email: reservation.email,
-        date: reservation.date,
-        time: reservation.time,
-        num_guests: reservation.num_guests,
-        table_num: reservation.table_num,
-        username: "guest"
+    await Reservation.countDocuments({ date: reservation.date, time: reservation.time }).then(async (count) => {
+        // console.log("Count: " + count)
+        if (count >= 1) {
+            reservationUnavailable = true
+            res.redirect('/guestForm')
+        } else {
+            const newReservation = new Reservation({
+                name: reservation.name,
+                phone_num: reservation.phone_num,
+                email: reservation.email,
+                date: reservation.date,
+                time: reservation.time,
+                num_guests: reservation.num_guests,
+                table_num: reservation.table_num,
+                username: req.user.username
+            })
+            console.log("\nnewReservation")
+            console.log(newReservation)
+            const highTraffic = isHighTraffic(newReservation.date);
+            await newReservation.save();
+            reservationMessage = ""
+            res.redirect('/guestPreConfirm');
+        }
     })
-    // console.log("\nGuest Reservation")
-    // console.log(reservation)
-    const highTraffic = isHighTraffic(newReservation.date);
-    await newReservation.save();
-    res.redirect('/guestPreConfirm')
 })
 
 // USER FORM
@@ -341,16 +359,23 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
     } else {
+        if (!reservationUnavailable){
+            reservationMessage = "";
+        } else if (reservationUnavailable){
+            // TODO: Insert validations here if the reservation is unavailable - display message in view
+            reservationMessage = "That reservation slot is already taken.\nPlease select a different date/time."
+            reservationUnavailable = false;
+        }
         let min_date = getMinDate()
         //res.render('fuel_quote.ejs', {user: userInfo, min_date});
-        res.render('userForm.ejs', {user: userInfo, min_date});
+        res.render('userForm.ejs', { min_date: min_date, reservationMessage: reservationMessage });
     }
 })
 // possible solution: when reservation slot is already taken, redirect/refresh userForm page and show a message.
 //                    use local global boolean to set a flag (reservationUnavailable initially set to false) 
 //                    to be used in .get(/userform) to check before displaying error message
 //                    On redirection, change flag back to false as user attempts to find another available reservation
-
+//                    Maybe prepopulate fields with previous information
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     reservation = {
         name: req.body.name,
@@ -361,23 +386,30 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
-    console.log(req.body.set_hr + ":" + req.body.set_min)
-    const newReservation = new Reservation({
-        name: reservation.name,
-        phone_num: reservation.phone_num,
-        email: reservation.email,
-        date: reservation.date,
-        time: reservation.time,
-        num_guests: reservation.num_guests,
-        table_num: reservation.table_num,
-        username: req.user.username
+    await Reservation.countDocuments({ date: reservation.date, time: reservation.time }).then(async (count) => {
+        // console.log("Count: " + count)
+        if (count >= 1) {
+            reservationUnavailable = true
+            res.redirect('/userForm')
+        } else {
+            const newReservation = new Reservation({
+                name: reservation.name,
+                phone_num: reservation.phone_num,
+                email: reservation.email,
+                date: reservation.date,
+                time: reservation.time,
+                num_guests: reservation.num_guests,
+                table_num: reservation.table_num,
+                username: req.user.username
+            })
+            console.log("\nnewReservation")
+            console.log(newReservation)
+            const highTraffic = isHighTraffic(newReservation.date);
+            await newReservation.save();
+            reservationMessage = ""
+            res.redirect('/confirmation');
+        }
     })
-    console.log("\nnewReservation")
-    console.log(newReservation)
-    const highTraffic = isHighTraffic(newReservation.date);
-    // console.log("\nis " + newReservation.date + " a high traffic day? " + highTraffic)
-    await newReservation.save();
-    res.redirect('/confirmation');
 })
 
 // CONFIRMATION
