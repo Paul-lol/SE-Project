@@ -60,7 +60,7 @@ const preferredTablesSchema = new mongoose.Schema({
 const UserInfo = require('./models/UserInfo')
 const User = mongoose.model("User", userSchema);
 const Reservation = mongoose.model("Reservation", reservationSchema);
-const Preferrence = mongoose.model("Preferrence", preferredTablesSchema);
+const Preference = mongoose.model("Preference", preferredTablesSchema);
 
 const users = []
 let userInfo = {
@@ -160,7 +160,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
             })
             userInfo.save();
             const emptyArr = new Array(20).fill(0);
-            const userTables = new Preferrence ({
+            const userTables = new Preference ({
                 username: req.body.inputUsername,
                 tables: emptyArr
             })
@@ -243,7 +243,7 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
             }
             // console.log("\nInformation: ")
             // console.log(information)
-            await Preferrence.findOne(filter).then((info) => {
+            await Preference.findOne(filter).then((info) => {
                 const tableArr = info.tables
                 const preferredTable = getPreferredTable(tableArr);
                 res.render('profile.ejs', { data: information, preferredTable: preferredTable })
@@ -394,11 +394,11 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
-    await Preferrence.findOne({ username: req.user.username }).then(async (info) => {
+    await Preference.findOne({ username: req.user.username }).then(async (info) => {
         console.log(info)
         var arr = info.tables
         arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-        const updateCount = await Preferrence.updateOne({ username: req.user.username }, {
+        const updateCount = await Preference.updateOne({ username: req.user.username }, {
             username: req.body.username,
             tables: arr
         });
