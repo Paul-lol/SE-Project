@@ -175,6 +175,11 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
+//VIEW TABLES
+app.get('/viewTables', (req, res) => {
+    res.render('viewTables.ejs')
+})
+
 // GUEST REGISTER 
 app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
     res.render('guestRegister.ejs')
