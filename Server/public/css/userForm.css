@@ -148,3 +148,7 @@ select {
 	font-size: 30px;
 	color:rgba(192, 0, 0, 0.69)
 }
+
+.glyphicon {
+    font-size: 20px;
+}
