@@ -51,10 +51,16 @@ const reservationSchema = new mongoose.Schema({
     table_num: { type: Number, required: true },
     username: { type: String, required: true }
 });
+// Preferred Diner/Table
+const preferredTablesSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    tables: [Number]
+});
 // User Login Information
 const UserInfo = require('./models/UserInfo')
 const User = mongoose.model("User", userSchema);
 const Reservation = mongoose.model("Reservation", reservationSchema);
+const Preferrence = mongoose.model("Preferrence", preferredTablesSchema);
 
 const users = []
 let userInfo = {
@@ -153,6 +159,12 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
                 new_user: true
             })
             userInfo.save();
+            const emptyArr = new Array(20).fill(0);
+            const userTables = new Preferrence ({
+                username: req.body.inputUsername,
+                tables: emptyArr
+            })
+            userTables.save();
             console.log(userInfo);
             res.redirect('/login')
         }
@@ -210,39 +222,35 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
         res.redirect('/editProfile')
     } else {
         const filter = { username: req.user.username };
-        await User.findOne(filter).then((profileInfo) => {
-        let f_name = getFirstName(profileInfo.name)
-        let l_name = getLastName(profileInfo.name)
-        var information = {
-            first_name: f_name,
-            last_name: l_name,
-            mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
-            billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
-            city_mailing: profileInfo.city_mail,
-            city_billing: profileInfo.city_bill,
-            zip_mailing: profileInfo.zip_mail,
-            zip_billing: profileInfo.zip_bill,
-            state_mailing: profileInfo.state_mail,
-            state_billing: profileInfo.state_bill,
-            preferred_payment: profileInfo.preferred_payment,
+        await User.findOne(filter).then(async (profileInfo) => {
+            let f_name = getFirstName(profileInfo.name)
+            let l_name = getLastName(profileInfo.name)
+            var information = {
+                first_name: f_name,
+                last_name: l_name,
+                mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
+                billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
+                city_mailing: profileInfo.city_mail,
+                city_billing: profileInfo.city_bill,
+                zip_mailing: profileInfo.zip_mail,
+                zip_billing: profileInfo.zip_bill,
+                state_mailing: profileInfo.state_mail,
+                state_billing: profileInfo.state_bill,
+                preferred_payment: profileInfo.preferred_payment,
 
-            // TODO - FIX POINTS
-            points: profileInfo.points
-        }
-        // console.log("\nInformation: ")
-        // console.log(information)
-        // userInfo = {
-        //     name: lastReservation.name,
-        //     phone_num: lastReservation.phone_num,
-        //     email: lastReservation.email,
-        //     date: p_date,
-        //     time: lastReservation.time,
-        //     num_guests: lastReservation.num_guests,
-        //     table_num: lastReservation.table_num,
-        // }
-        res.render('profile.ejs', { data: information })
-    })
-}})
+                // TODO - FIX POINTS
+                points: profileInfo.points
+            }
+            // console.log("\nInformation: ")
+            // console.log(information)
+            await Preferrence.findOne(filter).then((info) => {
+                const tableArr = info.tables
+                const preferredTable = getPreferredTable(tableArr);
+                res.render('profile.ejs', { data: information, preferredTable: preferredTable })
+            });
+        })
+    }
+})
 
 // EDIT PROFILE
 app.get('/editProfile', checkAuthenticated, (req, res) => {
@@ -386,6 +394,15 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         num_guests: req.body.guest,
         table_num: req.body.tablenum
     }
+    await Preferrence.findOne({ username: req.user.username }).then(async (info) => {
+        console.log(info)
+        var arr = info.tables
+        arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+        const updateCount = await Preferrence.updateOne({ username: req.user.username }, {
+            username: req.body.username,
+            tables: arr
+        });
+    });
     await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
@@ -587,5 +604,10 @@ function isHighTraffic(date){
 // 11-11	Veterans Day
 // 11-25	Thanksgiving Day	 	 
 // 12-25	Christmas Day	
+
+function getPreferredTable(arr){
+    var maxTable = Math.max(...arr)
+    return arr.indexOf(maxTable)
+}
 
 app.listen(3000);
