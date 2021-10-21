@@ -4,6 +4,7 @@
 <title>Reservation Form</title>
 <link rel="stylesheet" type="text/css" href="css/guestForm.css" />
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="shortcut icon" href="css/pasta.png" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
@@ -60,8 +61,11 @@
 						<label>Number of Guests</label>
 						<input type="number" placeholder="How many guests? " min="1" max = "8" name="guest" id="guest" required>
 					</div>
-					<div class="form_group">
+					<div class="form_group"> 	
 						<label>Table #</label>
+						<a href="/viewTables" target="_blank">
+							<span class="glyphicon glyphicon-modal-window" ></span>
+						  </a>
 						<input type="number" placeholder="Preferred table? " min="1" max = "20" name="tablenum" id="tablenum" required>
 					</div>	
 				</div>
