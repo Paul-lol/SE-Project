@@ -54,22 +54,22 @@
 					</div>
 					<br><br>
 				</div>
-                <center><div id="timeslot_error">Pasta Consigliere expects a high volume of guests on <%= reservationMessage %>.</div></center>
-                <center><div id="timeslot_error">Therefore, we will require a valid credit card on system <br> and a $10 hold fee for each reservation.</div></center>
-                <center><div id="timeslot_error">We at Pasta Consigliere deeply apologize for any inconvenience.<br>We are looking forward to your visit!</div></center>
+                <center><div id="hold_fee_notice">Pasta Consigliere expects a high volume of guests on <%= reservationMessage %>.</div></center>
+                <center><div id="hold_fee_notice">Therefore, we will require a valid credit card on system <br> and a $10 hold fee for each reservation.</div></center>
+                <center><div id="hold_fee_notice">Pasta Consigliere deeply apologizes for any inconvenience<br>caused. We are looking forward to your visit!</div></center>
 				<p class="clear"></p>
 			</form>
 			</div>
 		</div>
 	</div>
-
 	<footer class="footer">
 		<img class="img-rounded" width="50" height="50" src="images/pasta.png">
 		<center>All Rights Reserved (2021)</center>
 	</footer>
-	
+
 </body>
 <script>
+    // populates select objects with month and year for expiry date field
     function loadDropdown(){
         var x = document.getElementById("set_month");
         var y = document.getElementById("set_date");
