@@ -1,0 +1,96 @@
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+<title>Reservation Form</title>
+<link rel="stylesheet" type="text/css" href="highTraffic.css"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="shortcut icon" href="images/pasta.png" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body onload="loadDropdown()">
+	<div id="container">
+		<div class="content">
+			<div class="inner_content">
+			<form class="bookTable" method="POST" action="/userForm">
+				<h2 class="form_head">Reservation Form</h2>
+				<p class="form_slg">We offer you the best reservation services</p>
+				<div class="left">
+					<div class="form_group">
+						<label>Name on card</label>
+						<input type="text" id="card_name" name="card_name" placeholder="John Doe" required>
+				    </div>
+				    <div class="form_group">
+						<label>Card Number</label>
+						<input id="card_number" name="card_number" type="tel" inputmode="numeric" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}" autocomplete="cc-number" maxlength="19" placeholder="1111-1111-1111-1111" required>
+					</div>
+					<div class="form_group">
+						<label>Expiry Date</label>
+						<br>
+						<select name="set_month" id="set_month" required>
+							<option value="01">01</option>
+						</select>
+						<select name="set_date" id="set_date" required>
+							<option value="2021">2021</option>
+						</select>
+					</div>
+					<div class="form_group">
+						<label>Security Code</label>
+						<input type="tel" pattern="[0-9]{3}" id="security_code" name="security_code" placeholder="111" maxlength="3" required>
+					</div>
+					<div class="form_group">
+						<label>ZIP/Postal Code</label>
+						<input type="text" name="zip_code" id="zip_code" pattern="[0-9]*" placeholder="11111" maxlength="5" required>
+					</div>
+				</div>
+				
+				<div class="left">
+					<div class="form_group">
+						<center><img src = "images/pasta.png" width="350" height="350"></center>
+					</div>
+					<div class="form_group">
+						<input type="submit" class="submit" name="submit" value="BOOK A TABLE" />
+					</div>
+					<br><br>
+				</div>
+                <center><div id="timeslot_error">Pasta Consigliere expects a high volume of guests on <%= reservationMessage %>.</div></center>
+                <center><div id="timeslot_error">Therefore, we will require a valid credit card on system <br> and a $10 hold fee for each reservation.</div></center>
+                <center><div id="timeslot_error">We at Pasta Consigliere deeply apologize for any inconvenience.<br>We are looking forward to your visit!</div></center>
+				<p class="clear"></p>
+			</form>
+			</div>
+		</div>
+	</div>
+
+	<footer class="footer">
+		<img class="img-rounded" width="50" height="50" src="images/pasta.png">
+		<center>All Rights Reserved (2021)</center>
+	</footer>
+	
+</body>
+<script>
+    function loadDropdown(){
+        var x = document.getElementById("set_month");
+        var y = document.getElementById("set_date");
+        var l = x.options.length - 1;
+        var newOption = new Option(99, 99)
+
+        for (let i = 2; i <= 9; i++){
+            newOption = new Option(("0" + i), ("0" + i))
+            x.add(newOption, undefined)
+            // console.log(newOption)
+        }
+        for (let i = 10; i <= 12; i++){
+            newOption = new Option(i, i)
+            x.add(newOption, undefined)
+            // console.log(newOption)
+        }
+        for (let i = 21; i <= 40; i++){
+            newOption = new Option(("20" + i), ("20" + i))
+            y.add(newOption, undefined)
+            // console.log(newOption)
+        }
+    }
+</script>
+</html>

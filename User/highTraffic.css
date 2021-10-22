@@ -13,7 +13,7 @@
 #container {
     height: 100%;
     width: 100%;
-    background-image: url("bg2.jpg");
+    background-image: url("images/bg2.jpg");
     background-position: center;
     background-size: cover;
     position: fixed;
@@ -31,6 +31,7 @@ h2.form_head {
 	text-align: center;
 	color: #f3f3f3;
 	font-size: 60px;
+    padding-top: 150px;
   }
   
 p.form_slg {
@@ -93,35 +94,6 @@ input[type="submit"].submit {
     font-size: 15px;
   }
   
-  .topnav {
-    background-color: rgba(255, 133, 52, 0.69);
-    overflow: hidden;
-  }
-  
-  /* Style the links inside the navigation bar */
-  .topnav a {
-    float: left;
-    color: #000000;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
-  }
-  
-  /* Change the color of links on hover */
-  .topnav a:hover {
-    background-color: rgba(255, 220, 155, 0.514);
-    color: black;
-	text-decoration: none;
-  }
-  
-  /* Add a color to the active/current link */
-  .topnav a.active {
-    background-color: #c040008a;
-    color: white;
-	text-decoration: none;
-  }
-  
   @media only screen and (max-width: 1080px) {
 	/* For desktop: */
 	.col-1 {width: 8.33%;}
@@ -146,6 +118,7 @@ select {
 
 #timeslot_error {
 	font-size: 30px;
+    font-weight: bold;
 	color:rgba(192, 0, 0, 0.69)
 }
 
