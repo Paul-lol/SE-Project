@@ -240,7 +240,7 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
     // console.log(req.body);
     const filter = { username: req.user.username };
     userInfo = {
-        name: req.body.full_name[0] + " " + req.body.full_name[1],
+        name: req.body.full_name,
         mail_street1: req.body.street1,
         mail_street2: req.body.street2,
         bill_street1: '',

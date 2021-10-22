@@ -64,6 +64,7 @@ label {
 input[type="text"],
 [type="tel"],
 input[type="email"],
+input[type="state"],
 input[type="number"],
 input[type="date"],
 input[type="time"] {
@@ -71,10 +72,13 @@ input[type="time"] {
   border: 1px solid #cccccc;
   padding: 7px;
   height: 40px;
-  background: #efefef;
+  background: #d1cdcd;
   border-radius: 4px;
 }
 
+select {
+  background: #d1cdcd;
+}
 input[type="submit"].submit {
   width: 100%;
   background: red;
