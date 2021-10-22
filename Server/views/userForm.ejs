@@ -116,26 +116,10 @@
 		console.log("currDate: " + currDate)
 		let currentHour = cDate.getHours() + 1
 		let currentMinute = cDate.getMinutes()
-		let min_time = currentHour + ":" + currentMinute
 		if(currDate == min_date){
-			if(currentHour < 10){
-				min_time = '0' + currentHour
-				if(currentMinute < 10){
-					min_time = min_time + ':0' + currentMinute 
-				} else {
-					min_time = min_time + ':' + currentMinute
-				}
-			} else {
-				min_time = '' + currentHour
-				if(currentMinute < 10){
-					min_time = min_time + ':0' + currentMinute 
-				} else {
-					min_time = min_time + ':' + currentMinute
-				}
-			}
-			document.getElementById("set_time").min = min_time;
+
 		} else {
-			document.getElementById("set_time").min = "10:00";
+
 		}
 		console.log(document.getElementById("set_time").min);
 	}

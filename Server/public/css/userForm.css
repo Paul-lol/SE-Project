@@ -149,6 +149,6 @@ select {
 	color:rgba(192, 0, 0, 0.69)
 }
 
-.glyphicon {
+.glyphicon.glyphicon-modal-window {
     font-size: 20px;
 }
