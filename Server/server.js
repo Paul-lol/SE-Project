@@ -332,21 +332,21 @@ app.get('/guestForm', async (req, res) => {
     res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
 })
 app.post('/guestForm', async (req,res) => {
-    reservation = {
-        name: req.body.name,
-        phone_num: req.body.phone,
-        email: req.body.email,
-        date: req.body.date_res,
-        time: req.body.set_hr + ":" + req.body.set_min,
-        num_guests: req.body.guest,
-        table_num: req.body.tablenum
-    }
     await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
             res.redirect('/guestForm')
         } else {
+            reservation = {
+                name: req.body.name,
+                phone_num: req.body.phone,
+                email: req.body.email,
+                date: req.body.date_res,
+                time: req.body.set_hr + ":" + req.body.set_min,
+                num_guests: req.body.guest,
+                table_num: req.body.tablenum
+            }
             const newReservation = new Reservation({
                 name: reservation.name,
                 phone_num: reservation.phone_num,
@@ -390,30 +390,30 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
 //                    On redirection, change flag back to false as user attempts to find another available reservation
 //                    Maybe prepopulate fields with previous information
 app.post('/userForm', checkAuthenticated, async (req,res) => {
-    reservation = {
-        name: req.body.name,
-        phone_num: req.body.phone,
-        email: req.body.email,
-        date: req.body.date_res,
-        time: req.body.set_hr + ":" + req.body.set_min,
-        num_guests: req.body.guest,
-        table_num: req.body.tablenum
-    }
-    await Preference.findOne({ username: req.user.username }).then(async (info) => {
-        console.log(info)
-        var arr = info.tables
-        arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-        const updateCount = await Preference.updateOne({ username: req.user.username }, {
-            username: req.body.username,
-            tables: arr
-        });
-    });
     await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
             res.redirect('/userForm')
         } else {
+            reservation = {
+                name: req.body.name,
+                phone_num: req.body.phone,
+                email: req.body.email,
+                date: req.body.date_res,
+                time: req.body.set_hr + ":" + req.body.set_min,
+                num_guests: req.body.guest,
+                table_num: req.body.tablenum
+            }
+            await Preference.findOne({ username: req.user.username }).then(async (info) => {
+                // console.log(info)
+                var arr = info.tables
+                arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+                const updateCount = await Preference.updateOne({ username: req.user.username }, {
+                    username: req.body.username,
+                    tables: arr
+                });
+            });
             const newReservation = new Reservation({
                 name: reservation.name,
                 phone_num: reservation.phone_num,
