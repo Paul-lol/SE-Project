@@ -10,6 +10,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const lib = require('./helper')
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -23,34 +24,6 @@ mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_
     console.log('Connected to Database!');
 }).catch(err => console.log(err));
 
-// User Profile Information
-const userSchema = new mongoose.Schema({ 
-    name: { type: String, required: true },
-    mail_street1: { type: String, required: true },
-    mail_street2: String,
-    bill_street1: { type: String, required: true },
-    bill_street2: String,
-    city_mail: { type: String, required: true },
-    city_bill: { type: String, required: true }, 
-    zip_mail: { type: Number, required: true },
-    zip_bill: { type: Number, required: true },
-    state_mail: { type: String, required: true },
-    state_bill: { type: String, required: true },
-    points: { type: Number, required: true },
-    preferred_payment: { type: String, required: true },
-    username: { type: String, required: true }
-});
-// User Reservation Information
-const reservationSchema = new mongoose.Schema({ 
-    name: { type: String, required: true },
-    phone_num: { type: String, required: true },
-    email: { type: String, required: true },
-    date: { type: Date, required: true },
-    time: { type: String, required: true },
-    num_guests: { type: Number, required: true },
-    table_num: { type: Number, required: true },
-    username: { type: String, required: true }
-});
 // Preferred Diner/Table
 const preferredTablesSchema = new mongoose.Schema({
     username: { type: String, required: true },
@@ -58,8 +31,8 @@ const preferredTablesSchema = new mongoose.Schema({
 });
 // User Login Information
 const UserInfo = require('./models/UserInfo')
-const User = mongoose.model("User", userSchema);
-const Reservation = mongoose.model("Reservation", reservationSchema);
+const User = require('./models/User')
+const Reservation = require('./models/Reservation')
 const Preference = mongoose.model("Preference", preferredTablesSchema);
 
 const users = []
@@ -85,7 +58,7 @@ let reservation = {
     date: '01-01-2021',
     time: '00:00',
     num_guests: '0',
-    table_num: '0'
+    table_num: 0
 };
 
 app.use(express.static('public'));
@@ -110,7 +83,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
     else{
         // Say "Welcome, NAME" instead of "Welcome, username"
         await User.findOne({ username: req.user.username }, 'name').then(async (info) => {
-            // console.log("First Name: " + getFirstName(info.name))
+            // console.log("First Name: " + lib.getFirstName(info.name))
             // userInfo = { 
             //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
             //     street1: info[0].street1,
@@ -119,7 +92,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
             //     city: info[0].city,
             //     zip: info[0].zip
             // };
-            res.render('index.ejs', { name: getFirstName(info.name) });
+            res.render('index.ejs', { name: lib.getFirstName(info.name) });
         })
     }
 })
@@ -228,8 +201,8 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
     } else {
         const filter = { username: req.user.username };
         await User.findOne(filter).then(async (profileInfo) => {
-            let f_name = getFirstName(profileInfo.name)
-            let l_name = getLastName(profileInfo.name)
+            let f_name = lib.getFirstName(profileInfo.name)
+            let l_name = lib.getLastName(profileInfo.name)
             var information = {
                 first_name: f_name,
                 last_name: l_name,
@@ -250,7 +223,7 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
             // console.log(information)
             await Preference.findOne(filter).then((info) => {
                 const tableArr = info.tables
-                const preferredTable = getPreferredTable(tableArr);
+                const preferredTable = lib.getPreferredTable(tableArr);
                 res.render('profile.ejs', { data: information, preferredTable: preferredTable })
             });
         })
@@ -328,7 +301,7 @@ app.get('/guestForm', async (req, res) => {
         reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
         reservationUnavailable = false;
     }
-    let min_date = getMinDate()
+    let min_date = lib.getMinDate()
     res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
 })
 app.post('/guestForm', async (req,res) => {
@@ -359,7 +332,7 @@ app.post('/guestForm', async (req,res) => {
             })
             console.log("\nnewReservation")
             console.log(newReservation)
-            const highTraffic = isHighTraffic(newReservation.date);
+            const highTraffic = lib.isHighTraffic(newReservation.date);
             await newReservation.save();
             reservationMessage = ""
             res.redirect('/guestPreConfirm');
@@ -379,7 +352,7 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
             reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
             reservationUnavailable = false;
         }
-        let min_date = getMinDate()
+        let min_date = lib.getMinDate()
         //res.render('fuel_quote.ejs', {user: userInfo, min_date});
         res.render('userForm.ejs', { min_date: min_date, reservationMessage: reservationMessage });
     }
@@ -426,7 +399,7 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
             })
             console.log("\nnewReservation")
             console.log(newReservation)
-            const highTraffic = isHighTraffic(newReservation.date);
+            const highTraffic = lib.isHighTraffic(newReservation.date);
             await newReservation.save();
             reservationMessage = ""
             res.redirect('/confirmation');
@@ -453,7 +426,7 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
                     table_num: 'N/A',
                 }
             } else {
-                const p_date = parseDate(lastReservation.date);
+                const p_date = lib.parseDate(lastReservation.date);
                 reservation = {
                     name: lastReservation.name,
                     phone_num: lastReservation.phone_num,
@@ -486,7 +459,7 @@ app.get('/guestPreConfirm', async(req, res) => {
                 table_num: 'N/A',
             }
         } else {
-            const p_date = parseDate(lastReservation.date);
+            const p_date = lib.parseDate(lastReservation.date);
             reservation = {
                 name: lastReservation.name,
                 phone_num: lastReservation.phone_num,
@@ -518,101 +491,7 @@ function checkAuthenticated(req, res, next){
 function checkNotAuthenticated(req, res, next){
     if (req.isAuthenticated()){
         return res.redirect('/')}
-    next()}
-
-// MINIMUM DATE
-function getMinDate(){
-    let currentDate = new Date();
-    let cDay = currentDate.getDate()
-    let cMonth = currentDate.getMonth() + 1
-    let cYear = currentDate.getFullYear()
-    let min_date = cYear + '-' + cMonth + '-' + cDay
-    if(cMonth < 10){
-        min_date = cYear + '-0' + cMonth
-        if(cDay < 10){
-            min_date = min_date + '-0' + cDay
-        } else{
-            min_date = min_date + '-' + cDay
-        }
-    } else{
-        min_date = cYear + '-' + cMonth
-        if(cDay < 10){
-            min_date = min_date + '-0' + cDay
-        } else{
-            min_date = min_date + '-' + cDay
-        }
-    }
-    return min_date;
-}
-
-// PARSE DATE - 
-// Notes: getMonth() start from 0
-//        getDay() -> The value returned by getDay is an integer corresponding to the day of the week: 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on.
-//        use getDate to return the day date
-function parseDate(isoDate){
-    var date = new Date(isoDate);
-    var parsedDate = (date.getUTCMonth() + 1) + "-" + date.getUTCDate() + "-" + date.getUTCFullYear();
-    if (parsedDate.length == 8) {
-        parsedDate = "0" + (date.getUTCMonth() + 1) + "-0" + date.getUTCDate() + "-" + date.getUTCFullYear();
-    } else if (parsedDate.length == 9){
-        const arr = parsedDate.split("-");
-        if (arr[0].length == 1){
-            parsedDate = "0" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate() + "-" + date.getUTCFullYear();
-        } else {
-            parsedDate = (date.getUTCMonth() + 1) + "-0" + date.getUTCDate() + "-" + date.getUTCFullYear();
-        }
-    }
-    return parsedDate
-}
-
-// PARSE FIRST NAME
-function getFirstName(full_name){
-    const nameArr = full_name.split(" ");
-    var first_name = nameArr[0];
-    for (var i = 1; i < nameArr.length - 2; i++){
-        first_name = first_name + " " + nameArr[i]
-    }
-    // console.log("first name: " + first_name);
-    return first_name;
-}
-// PARSE LAST NAME
-function getLastName(full_name){
-    const nameArr = full_name.split(" ");
-    const last_name = nameArr[nameArr.length - 1];
-    // console.log("last name: " + last_name);
-    return last_name;
-}
-
-// HIGH TRAFFIC DAY? Assumption: Weekends and Holidays and Observances are 'High Traffic Days'
-const highTrafficDays = ["1-1", "2-14", "5-8", "5-31", "6-20", "7-4", "9-6", "9-11", "11-11", "11-25", "12-25"]
-function isHighTraffic(date){
-    const month_and_day = (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-    if(date.getUTCDay() == 6 || date.getUTCDay() == 0){
-        return true
-    } else {
-        if (highTrafficDays.indexOf(month_and_day) >= 0){
-            return true
-        }
-        return false
-    }
-}
-// Holidays and Observances in United States in 2021
-// Date	 	Name
-// 01-01	New Year's Day
-// 02-14    Valentine's
-// 05-08    Mother's Day
-// 05-31	Memorial Day
-// 06-20    Father's Day 2021
-// 07-04	Independence Day
-// 09-06	Labor Day	
-// 09-11    9/11 Memorial	  	 
-// 11-11	Veterans Day
-// 11-25	Thanksgiving Day	 	 
-// 12-25	Christmas Day	
-
-function getPreferredTable(arr){
-    var maxTable = Math.max(...arr)
-    return arr.indexOf(maxTable)
+    next()
 }
 
 app.listen(3000);

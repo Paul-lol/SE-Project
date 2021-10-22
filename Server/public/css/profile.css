@@ -22,10 +22,14 @@
 #container {
   height: 100%;
   width: 100%;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.185), rgba(0, 0, 0, 0.164)), url("bg3.jpg");
+  overflow-y: auto;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.185), rgba(0, 0, 0, 0.164)),
+    url("bg3.jpg");
   background-position: center;
   background-size: cover;
   position: fixed;
+  margin-bottom: 50px;
+  padding-bottom: 100px;
 }
 
 div.inner_content {
@@ -79,6 +83,7 @@ input[type="time"] {
   height: 40px;
   background: #efefef;
   border-radius: 4px;
+  font-size: large;
 }
 
 input[type="submit"].submit {
@@ -93,6 +98,11 @@ input[type="submit"].submit {
   border-radius: 4px;
 }
 
+body {
+  display: flex;
+  flex-flow: column;
+}
+
 .footer {
   position: fixed;
   left: 0;
@@ -102,6 +112,8 @@ input[type="submit"].submit {
   text-align: center;
   color: black;
   font-size: 15px;
+  margin-top: auto;
+  margin-bottom: 0px;
 }
 
 .topnav {
