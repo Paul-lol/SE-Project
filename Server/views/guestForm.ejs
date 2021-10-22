@@ -37,7 +37,7 @@
 					<div class="form_group">
 						<label>Time (Operating Hours: 10am - 10pm)</label>
 						<br>
-						<select name="set_hr" id="set_hr">
+						<select name="set_hr" id="set_hr" onchange="updateMinMin()">
 							<option value="10">10</option>
 							<option value="11">11</option>
 							<option value="12">12</option>
@@ -94,35 +94,91 @@
 	// By default: 1 hour before closing. Closing at 10:00 PM so MAX = "21:00"
 -->
 <script>
-	function updateMinTime(){
+	function resetDropdown(){
+		var x = document.getElementById("set_hr");
+		var l = x.options.length - 1;
+		var newOption = new Option(99, 99)
+		for(let i = l; i >= 0; i--) {
+			x.remove(i);
+		}
+		for (let i = 10; i <= 21; i++){
+			newOption = new Option(i, i)
+			//console.log(newOption)
+			x.add(newOption, undefined)
+		}
+		var y = document.getElementById("set_min");
+		l = y.options.length - 1;
+		for(let i = l; i >= 0; i--) {
+			y.remove(i);
+		}
+		// newOption = new Option("00", "00")
+		// y.add(newOption, undefined)
+		newOption = new Option("00", "00")
+		y.add(newOption, undefined)
+		newOption = new Option(30, 30)
+		y.add(newOption, undefined)
+
+		updateMinHour()
+	}
+	function updateMinHour(){
+		var x = document.getElementById("set_hr");
+		var y = document.getElementById("set_min");
+		var selectHourValue = document.getElementById("set_hr").value
+		let removeUpTo = 0
 		let cDate = new Date();
 		let min_date = document.getElementById("date_id").min
 		let currDate = document.getElementById("date_id").value
-		console.log("currDate: " + currDate)
-		let currentHour = cDate.getHours() + 1
+		let currentHour = cDate.getHours()
 		let currentMinute = cDate.getMinutes()
-		let min_time = currentHour + ":" + currentMinute
-		if(currDate == min_date){
-			if(currentHour < 10){
-				min_time = '0' + currentHour
-				if(currentMinute < 10){
-					min_time = min_time + ':0' + currentMinute 
-				} else {
-					min_time = min_time + ':' + currentMinute
-				}
-			} else {
-				min_time = '' + currentHour
-				if(currentMinute < 10){
-					min_time = min_time + ':0' + currentMinute 
-				} else {
-					min_time = min_time + ':' + currentMinute
-				}
+		//console.log("currentHour (from date): " + currentHour)
+		// console.log("selectHourValue: " + selectHourValue)
+		// change currentHour & currentMinute below for testing
+		// currentHour = 18
+		// currentMinute = 28
+		if(currDate == min_date && currentMinute <= 30){
+			removeUpTo = currentHour - 10
+			for (let i = 0; i < removeUpTo ; i++) {
+				x.remove(0)
 			}
-			document.getElementById("set_time").min = min_time;
-		} else {
-			document.getElementById("set_time").min = "10:00";
+		} else if (currDate == min_date && currentMinute >= 30) {
+			removeUpTo = currentHour - 9
+			for (let i = 0; i < removeUpTo ; i++) {
+				x.remove(0)
+			}
 		}
-		console.log(document.getElementById("set_time").min);
+		// selectHourValue = 18
+		if (currentHour == selectHourValue && currentMinute <= 30) {
+			y.remove(0)
+		}
+	}
+	function updateMinMin(){
+		var y = document.getElementById("set_min");
+		var l = y.options.length - 1;
+		var selectHourValue = document.getElementById("set_hr").value
+		let cDate = new Date();
+		let currentHour = cDate.getHours()
+		let currentMinute = cDate.getMinutes()
+		var newOption = new Option(99, 99)
+		// currentHour = 18
+		// selectHour = 18
+		for(let i = l; i >= 0; i--) {
+			y.remove(i);
+		}
+		// newOption = new Option("00", "00")
+		// y.add(newOption, undefined)
+		if (currentHour != selectHourValue){
+			newOption = new Option("00", "00")
+			y.add(newOption, undefined)
+			newOption = new Option(30, 30)
+			y.add(newOption, undefined)
+		} else {
+			l = y.options.length - 1;
+			for(let i = l; i >= 0; i--) {
+				y.remove(i);
+			}
+			newOption = new Option(30, 30)
+			y.add(newOption, undefined)
+		}
 	}
 </script>
 </html>
