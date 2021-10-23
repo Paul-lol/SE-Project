@@ -328,7 +328,7 @@ app.post('/guestForm', async (req,res) => {
                 time: reservation.time,
                 num_guests: reservation.num_guests,
                 table_num: reservation.table_num,
-                username: req.user.username
+                username: "guest"
             })
             console.log("\nnewReservation")
             console.log(newReservation)
