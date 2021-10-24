@@ -361,7 +361,6 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
 //                    use local global boolean to set a flag (reservationUnavailable initially set to false) 
 //                    to be used in .get(/userform) to check before displaying error message
 //                    On redirection, change flag back to false as user attempts to find another available reservation
-//                    Maybe prepopulate fields with previous information
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
         // console.log("Count: " + count)
