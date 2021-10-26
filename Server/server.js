@@ -140,8 +140,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
             userTables.save();
             console.log(userInfo);
             res.redirect('/login')
-        }
-    })
+        }})
     } catch(error) {
         console.error(error);
         res.redirect('/register')
@@ -184,11 +183,10 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
                     tables: emptyArr
                 })
                 userTables.save();
-              console.log(userInfo);
-              //TODO: Redirect guestPreConfirm to guestConfirm
-              res.redirect('/guestPreConfirm')
-          }
-      })
+                console.log(userInfo);
+                //TODO: Redirect guestPreConfirm to guestConfirm
+                res.redirect('/guestPreConfirm')
+          }})
       } catch(error) {
           console.error(error);
           res.redirect('/guestRegister')
