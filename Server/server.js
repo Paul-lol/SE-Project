@@ -113,34 +113,35 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
-      const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
-      users.push({
-          id: Date.now().toString(),
-          inputUsername : req.body.inputUsername,
-          inputPassword : hashedPassword
-      })
-      await UserInfo.find({ username: req.body.inputUsername }).then((users) =>{
-        if (users.length > 0){
-            // console.log(users.length);
-            //users.splice(0, users.length);
+        const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
+         users.push({  
+            id: Date.now().toString(),
+            inputUsername : req.body.inputUsername,
+            inputPassword : hashedPassword
+        })
+        await UserInfo.countDocuments({ username: req.body.inputUsername }).then((registeredCount) =>{
+            // console.log(registeredCount)
+            if (registeredCount > 0) {
             console.log('Username already exists')
+            // TODO: make register page display error if the username already exists
             res.redirect('/register');
-        } else{
-            const userInfo = new UserInfo ({
-                username: req.body.inputUsername,
-                password: hashedPassword,
-                new_user: true
-            })
-            userInfo.save();
-            const emptyArr = new Array(20).fill(0);
-            const userTables = new Preference ({
-                username: req.body.inputUsername,
-                tables: emptyArr
-            })
-            userTables.save();
-            console.log(userInfo);
-            res.redirect('/login')
-        }})
+            } else {
+                const userInfo = new UserInfo ({
+                    username: req.body.inputUsername,
+                    password: hashedPassword,
+                    new_user: true
+                })
+                userInfo.save();
+                const emptyArr = new Array(20).fill(0);
+                const userTables = new Preference ({
+                    username: req.body.inputUsername,
+                    tables: emptyArr
+                })
+                userTables.save();
+                console.log(userInfo);
+                res.redirect('/login')
+            }
+        })
     } catch(error) {
         console.error(error);
         res.redirect('/register')
@@ -164,13 +165,13 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
             inputUsername : req.body.inputUsername,
             inputPassword : hashedPassword
         })
-        await UserInfo.find({ username: req.body.inputUsername }).then((users) =>{
-          if (users.length > 0){
-              // console.log(users.length);
-              //users.splice(0, users.length);
-              console.log('Username already exists')
-              res.redirect('/guestRegister');
-          } else{
+        await UserInfo.countDocuments({ username: req.body.inputUsername }).then((registeredCount) =>{
+            // console.log(registeredCount)
+            if (registeredCount > 0){
+                console.log('Username already exists')
+                // TODO: make guestRegister page display error if the username already exists
+                res.redirect('/guestRegister');
+            } else {
                 const userInfo = new UserInfo ({
                     username: req.body.inputUsername,
                     password: hashedPassword,
@@ -185,11 +186,12 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
                 userTables.save();
                 console.log(userInfo);
                 res.redirect('/guestConfirmation')
-          }})
-      } catch(error) {
-          console.error(error);
-          res.redirect('/guestRegister')
-      }
+            }
+        })
+    } catch(error) {
+        console.error(error);
+        res.redirect('/guestRegister')
+    }
 })
 // }, passport.authenticate('local', {
 //     successRedirect: '/',
