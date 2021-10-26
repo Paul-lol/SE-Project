@@ -184,8 +184,7 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
                 })
                 userTables.save();
                 console.log(userInfo);
-                //TODO: Redirect guestPreConfirm to guestConfirm
-                res.redirect('/guestPreConfirm')
+                res.redirect('/guestConfirmation')
           }})
       } catch(error) {
           console.error(error);
@@ -475,6 +474,38 @@ app.get('/guestPreConfirm', async(req, res) => {
         }
     })
     res.render('guestPreConfirm.ejs', { data: reservation });
+})
+
+//GUEST CONFIRMATION
+app.get('/guestConfirmation', async(req, res) => {
+    // guest1234 
+    await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
+        console.log("\nLatest Reservation")
+        console.log(lastReservation)
+        if(lastReservation == null){
+            reservation = {
+                name: 'No Reservation Found',
+                phone_num: 'N/A',
+                email: 'N/A',
+                date: 'N/A',
+                time: 'N/A',
+                num_guests: 'N/A',
+                table_num: 'N/A',
+            }
+        } else {
+            const p_date = lib.parseDate(lastReservation.date);
+            reservation = {
+                name: lastReservation.name,
+                phone_num: lastReservation.phone_num,
+                email: lastReservation.email,
+                date: p_date,
+                time: lastReservation.time,
+                num_guests: lastReservation.num_guests,
+                table_num: lastReservation.table_num
+            }
+        }
+    })
+    res.render('guestConfirmation.ejs', { data: reservation });
 })
 
 // LOGOUT
