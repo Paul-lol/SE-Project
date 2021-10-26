@@ -172,12 +172,17 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
               console.log('Username already exists')
               res.redirect('/guestRegister');
           } else{
-              const userInfo = new UserInfo ({
-                  username: req.body.inputUsername,
-                  password: hashedPassword,
-                  new_user: true 
-              })
-              userInfo.save();
+                const userInfo = new UserInfo ({
+                    username: req.body.inputUsername,
+                    password: hashedPassword,
+                    new_user: true 
+                })
+                userInfo.save();
+                const emptyArr = new Array(20).fill(0);
+                const userTables = new Preference ({
+                    username: req.body.inputUsername,
+                    tables: emptyArr
+                })
               console.log(userInfo);
               //TODO: Redirect guestPreConfirm to guestConfirm
               res.redirect('/guestPreConfirm')
