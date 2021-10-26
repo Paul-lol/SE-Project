@@ -110,6 +110,11 @@
   font-size: 20px;
 }
 
+.btn3{
+  background-color: #4CAF50; 
+  font-size: 20px;
+}
+
 @media only screen and (max-width: 1920px) {
 	/* For desktop: */
 	.col-1 {width: 8.33%;}
