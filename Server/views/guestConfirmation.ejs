@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confirmation</title>
+<link rel="stylesheet" type="text/css" href="css/guestPreConfirm.css"/>
+<link rel="shortcut icon" href="css/pasta.png" />
+<script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+</head>
+<body>
+<div id="container">
+<div class="wrapper">
+    <div class="left">
+        <img src="css/profile.png" 
+        alt="user" width="100">
+        <h4><%= data.name %></h4>
+    </div>
+    <div class="right">
+        <div class="info">
+            <h3>Guest Details</h3>
+            <div class="info_data">
+                 <div class="data">
+                    <h4>Email</h4>
+                    <p><%= data.email %></p>
+                 </div>
+                 <div class="data">
+                   <h4>Phone</h4>
+                    <p><%= data.phone_num %></p>
+              </div>
+            </div>
+        </div>
+      
+      <div class="projects">
+        <h3>Reservation</h3>
+          <div class="projects_data">
+            <div class="data">
+              <h4>Date</h4>
+              <p><%= data.date %></p>
+            </div>
+            <div class="data">
+              <h4>Time</h4>
+              <p><%= data.time %></p>
+            </div>
+            <div class="data">
+              <h4># of Guests</h4>
+              <p><%= data.num_guests %></p>
+            </div>
+            <div class="data">
+              <h4>Table #</h4>
+              <p><%= data.table_num %></p>
+            </div>
+          </div>
+      </div>
+      <div id = "final">
+        <p>Your account has been successfully created! You may login to complete your account registration. </p><br>
+        <button type = "button" class = "btn1" onClick="location.href='/login'">Login</button>
+        </div>
+    </div>
+</div>
+</div>  
+</body>
+</html>
