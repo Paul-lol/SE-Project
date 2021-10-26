@@ -305,7 +305,7 @@ app.get('/guestForm', async (req, res) => {
     res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
 })
 app.post('/guestForm', async (req,res) => {
-    await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
+    await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
@@ -362,7 +362,7 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
 //                    to be used in .get(/userform) to check before displaying error message
 //                    On redirection, change flag back to false as user attempts to find another available reservation
 app.post('/userForm', checkAuthenticated, async (req,res) => {
-    await Reservation.countDocuments({ date: reservation.date, time: reservation.time, table_num: reservation.table_num }).then(async (count) => {
+    await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
         // console.log("Count: " + count)
         if (count >= 1) {
             reservationUnavailable = true
