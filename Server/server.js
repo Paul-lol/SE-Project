@@ -183,6 +183,7 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
                     username: req.body.inputUsername,
                     tables: emptyArr
                 })
+                userTables.save();
               console.log(userInfo);
               //TODO: Redirect guestPreConfirm to guestConfirm
               res.redirect('/guestPreConfirm')
