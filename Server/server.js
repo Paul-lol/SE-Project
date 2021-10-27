@@ -76,22 +76,12 @@ app.use(methodOverride('_method'))
 
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
-    // req.user = { username, password, new_user }
+    // req.user has 3 attributes: username, password, new_user }
     if(req.user.new_user){
         res.redirect('/editProfile')
     }
     else{
-        // Say "Welcome, NAME" instead of "Welcome, username"
         await User.findOne({ username: req.user.username }, 'name').then(async (info) => {
-            // console.log("First Name: " + lib.getFirstName(info.name))
-            // userInfo = { 
-            //     full_name: info[0].full_name[0] + " " + info[0].full_name[1],
-            //     street1: info[0].street1,
-            //     street2: info[0].street2,
-            //     state: info[0].state,
-            //     city: info[0].city,
-            //     zip: info[0].zip
-            // };
             res.render('index.ejs', { name: lib.getFirstName(info.name) });
         })
     }
@@ -302,7 +292,7 @@ app.get('/guestForm', async (req, res) => {
     if (!reservationUnavailable){
         reservationMessage = "";
     } else if (reservationUnavailable){
-        // TODO: Insert validations here if the reservation is unavailable - display message in view
+        // Validation if the reservation is unavailable - display message in view
         reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
         reservationUnavailable = false;
     }
@@ -353,7 +343,7 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
         if (!reservationUnavailable){
             reservationMessage = "";
         } else if (reservationUnavailable){
-            // TODO: Insert validations here if the reservation is unavailable - display message in view
+            // Validation if the reservation is unavailable - display message in view
             reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
             reservationUnavailable = false;
         }
