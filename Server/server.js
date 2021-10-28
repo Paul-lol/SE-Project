@@ -29,11 +29,16 @@ const preferredTablesSchema = new mongoose.Schema({
     username: { type: String, required: true },
     tables: [Number]
 });
+const pastaPointSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    pasta_points: Number
+})
 // User Login Information
 const UserInfo = require('./models/UserInfo')
 const User = require('./models/User')
 const Reservation = require('./models/Reservation')
 const Preference = mongoose.model("Preference", preferredTablesSchema);
+const PastaPoint = mongoose.model("PastaPoint", pastaPointSchema);
 
 const users = []
 let userInfo = {
@@ -48,7 +53,6 @@ let userInfo = {
     zip_bill: '',
     state_mail: '',
     state_bill: '',
-    points: 0,
     preferred_payment: 'Cash'
 };
 let reservation = {
@@ -128,6 +132,11 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
                     tables: emptyArr
                 })
                 userTables.save();
+                const userPoints = new PastaPoint({
+                    username: req.body.inputUsername,
+                    pasta_points: 0
+                })
+                userPoints.save();
                 console.log(userInfo);
                 res.redirect('/login')
             }
@@ -210,16 +219,15 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
                 state_mailing: profileInfo.state_mail,
                 state_billing: profileInfo.state_bill,
                 preferred_payment: profileInfo.preferred_payment,
-
-                // TODO - FIX POINTS
-                points: profileInfo.points
             }
             // console.log("\nInformation: ")
             // console.log(information)
-            await Preference.findOne(filter).then((info) => {
+            await Preference.findOne(filter).then(async (info) => {
                 const tableArr = info.tables
                 const preferredTable = lib.getPreferredTable(tableArr);
-                res.render('profile.ejs', { data: information, preferredTable: preferredTable })
+                await PastaPoint.findOne(filter).then((pointInfo) => {
+                    res.render('profile.ejs', { data: information, preferredTable: preferredTable + 1, points: Math.floor(pointInfo.pasta_points) })
+                })
             });
         })
     }
@@ -246,9 +254,6 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         zip_bill: '',
         state_mail: req.body.state,
         state_bill: '',
-        // TODO - DONT UPDATE POINTS, KEEP THE SAME
-        // Fetch points beforehand first from database then set points to that before updating in database
-        points: 9999,
         preferred_payment: req.body.paymentmethod,
         username: req.user.username
     }
@@ -274,7 +279,6 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         zip_bill: userInfo.zip_bill,
         state_mail: userInfo.state_mail,
         state_bill: userInfo.state_bill,
-        points: userInfo.points,
         preferred_payment: userInfo.preferred_payment,
         username: userInfo.username
     }, { upsert: true });
@@ -378,6 +382,15 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
                 num_guests: req.body.guest,
                 table_num: req.body.tablenum
             }
+            await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
+                // console.log(info)
+                var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
+                const prevPastaPoints = info.pasta_points
+                const updatePoints = await PastaPoint.updateOne({ username: req.user.username }, {
+                    username: req.user.username,
+                    pasta_points: prevPastaPoints + randomNum
+                });
+            });
             await Preference.findOne({ username: req.user.username }).then(async (info) => {
                 // console.log(info)
                 var arr = info.tables
