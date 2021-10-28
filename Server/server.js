@@ -287,8 +287,10 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
 // bool for guestForm and userForm
 let reservationMessage = ""
 let reservationUnavailable = false
+let isGuest = false
 // GUEST FORM
 app.get('/guestForm', async (req, res) => {
+    isGuest = true
     if (!reservationUnavailable){
         reservationMessage = "";
     } else if (reservationUnavailable){
@@ -330,7 +332,11 @@ app.post('/guestForm', async (req,res) => {
             const highTraffic = lib.isHighTraffic(newReservation.date);
             await newReservation.save();
             reservationMessage = ""
-            res.redirect('/guestPreConfirm');
+            if (highTraffic) {
+                res.redirect('/highTraffic');
+            } else {
+                res.redirect('/guestPreConfirm');
+            }
         }
     })
 })
@@ -396,7 +402,11 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
             const highTraffic = lib.isHighTraffic(newReservation.date);
             await newReservation.save();
             reservationMessage = ""
-            res.redirect('/confirmation');
+            if (highTraffic) {
+                res.redirect('/highTraffic')
+            } else {
+                res.redirect('/confirmation');
+            }
         }
     })
 })
@@ -498,6 +508,29 @@ app.get('/guestConfirmation', async(req, res) => {
         }
     })
     res.render('guestConfirmation.ejs', { data: reservation });
+})
+
+// hold fee during high traffic days
+app.get('/highTraffic', async (req, res) => {
+    if(isGuest) {
+        await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
+            const parsedDate = lib.parseDate(lastReservation.date)
+            res.render('highTraffic.ejs', { data: parsedDate })
+        })
+    } else {
+        await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
+            const parsedDate = lib.parseDate(lastReservation.date)
+            res.render('highTraffic.ejs', { data: parsedDate })
+        })
+    }
+})
+app.post('/highTraffic', async (req, res) => {
+    if (isGuest) {
+        isGuest = false
+        res.redirect('/guestPreConfirm')
+    } else {
+        res.redirect('/confirmation')
+    }
 })
 
 // LOGOUT
