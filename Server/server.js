@@ -362,10 +362,6 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
         res.render('userForm.ejs', { min_date: min_date, reservationMessage: reservationMessage });
     }
 })
-// possible solution: when reservation slot is already taken, redirect/refresh userForm page and show a message.
-//                    use local global boolean to set a flag (reservationUnavailable initially set to false) 
-//                    to be used in .get(/userform) to check before displaying error message
-//                    On redirection, change flag back to false as user attempts to find another available reservation
 app.post('/userForm', checkAuthenticated, async (req,res) => {
     await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
         // console.log("Count: " + count)
