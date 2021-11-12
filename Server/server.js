@@ -240,20 +240,22 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
 
 // POST PROFILE INFO
 app.post('/editProfile', checkAuthenticated, async (req,res) => {
-    // console.log(req.body);
+    console.log("DEBUG!!!!!!")
+    console.log(req.body);
+    console.log("DEBUG!!!!!!")
     const filter = { username: req.user.username };
     userInfo = {
         name: req.body.full_name,
         mail_street1: req.body.street1,
         mail_street2: req.body.street2,
-        bill_street1: '',
-        bill_street2: '',   
+        bill_street1: req.body.bill_street1,
+        bill_street2: req.body.bill_street2,   
         city_mail: req.body.city,
-        city_bill: '',
+        city_bill: req.body.bill_city,
         zip_mail: req.body.zip,
-        zip_bill: '',
+        zip_bill: req.body.bill_zip,
         state_mail: req.body.state,
-        state_bill: '',
+        state_bill: req.body.bill_state,
         preferred_payment: req.body.paymentmethod,
         username: req.user.username
     }
