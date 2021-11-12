@@ -564,4 +564,22 @@ function checkNotAuthenticated(req, res, next){
     next()
 }
 
-app.listen(3000);
+module.exports = {
+    checkAuth: function(){
+        return checkAuthenticated;
+    },
+    checkHist: function(){
+        return hist;
+    },
+    checkUsername: function(){
+        return users.inputUsername;
+    },
+    checkPassword: function(){
+        return users.inputPassword;
+    },
+    user: function() {
+        return userInfo;
+    },
+    server: app.listen(3000)
+}
+
