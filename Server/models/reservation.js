@@ -7,7 +7,7 @@ const reservationSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   time: { type: String, required: true },
   num_guests: { type: Number, required: true },
-  table_num: { type: Number, required: true },
+  table_num: { type: String, required: true },
   username: { type: String, required: true }
 });
 
