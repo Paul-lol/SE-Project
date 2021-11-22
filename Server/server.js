@@ -329,18 +329,14 @@ app.post('/guestForm', async (req,res) => {
         username: 'guest',
         didFinalize: false
     })
+
     console.log("\nInitial Reservation: ")
     console.log(initialReservation)
-    const highTraffic = lib.isHighTraffic(initialReservation.date);
-
     await initialReservation.save();
+
     reservationMessage = ""
-    // TODO: Change highTraffic to work with new reservation form
-    if (highTraffic) {
-        res.redirect('/highTraffic');
-    } else {
-        res.redirect('/selectGuestTables');
-    }
+
+    res.redirect('/selectGuestTables');
 })
 
 
@@ -379,18 +375,14 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         username: req.user.username,
         didFinalize: false
     })
+
     console.log("\nInitial Reservation: ")
     console.log(initialReservation)
-    const highTraffic = lib.isHighTraffic(initialReservation.date);
-
     await initialReservation.save();
+
     reservationMessage = ""
-    // TODO: Change highTraffic to work with new reservation form
-    if (highTraffic) {
-        res.redirect('/highTraffic');
-    } else {
-        res.redirect('/selectUserTables');
-    }
+
+    res.redirect('/selectUserTables');
 })
 
 
@@ -489,8 +481,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                 console.log("Available tables:\n" + availableTables)
                 // if there are available non-combined tables
                 if (availableTables.length > 0) {
-                    res.render('selectUserTables.ejs', { availableTables: availableTables });
-            
+                    console.log("continue . . . ")
                 // ELSE, COMBINE TABLES
                 } else {
                     var tables = []
@@ -513,6 +504,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                             console.log("ERROR")
                     }
                 }
+                res.render('selectUserTables.ejs', { availableTables: availableTables });
             })
         })
     }
@@ -553,7 +545,13 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
 
         // TODO: change initial reservation did finalize to true
         // clean up initial reservation
-        res.redirect('/confirmation');
+
+        const highTraffic = lib.isHighTraffic(reservation.date);
+        if (highTraffic) {
+            res.redirect('/highTraffic');
+        } else {
+            res.redirect('/confirmation');
+        }
     })
 })
 
@@ -580,8 +578,7 @@ app.get('/selectGuestTables', async (req, res) => {
             console.log("Available tables:\n" + availableTables)
             // if there are available non-combined tables
             if (availableTables.length > 0) {
-                res.render('selectGuestTables.ejs', { availableTables: availableTables });
-
+                console.log("continue . . . ");
             // ELSE, COMBINE TABLES
             } else {
                 var tables = []
@@ -604,6 +601,7 @@ app.get('/selectGuestTables', async (req, res) => {
                         console.log("ERROR")
                 }
             }
+            res.render('selectGuestTables.ejs', { availableTables: availableTables });
         })
     })
 })
@@ -624,7 +622,13 @@ app.post('/selectGuestTables', async (req, res) => {
 
         // change initial reservation did finalize to false
         // delete initial reservation
-        res.redirect('/guestPreConfirm');
+
+        const highTraffic = lib.isHighTraffic(reservation.date);
+        if (highTraffic) {
+            res.redirect('/highTraffic');
+        } else {
+            res.redirect('/guestPreConfirm');
+        }
     })
 })
 
@@ -731,9 +735,7 @@ app.get('/guestConfirmation', async(req, res) => {
 })
 
 
-// HIGH TRAFFIC
-// hold fee during high traffic days
-// TODO: change to work with new reservation
+// HIGH TRAFFIC - hold fee during high traffic days
 app.get('/highTraffic', async (req, res) => {
     if(isGuest) {
         await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
@@ -748,6 +750,7 @@ app.get('/highTraffic', async (req, res) => {
     }
 })
 app.post('/highTraffic', async (req, res) => {
+    // TODO: save user input to database
     if (isGuest) {
         isGuest = false
         res.redirect('/guestPreConfirm')
