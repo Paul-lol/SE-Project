@@ -100,6 +100,9 @@ app.get('/', checkAuthenticated, async (req, res) => {
         await User.findOne({ username: req.user.username }, 'name').then(async (info) => {
             res.render('index.ejs', { name: lib.getFirstName(info.name) });
         })
+        await InitialReservation.deleteMany({ username: req.user.username, didFinalize: false }).then((deleted) => {
+            console.log("Deleted initial reservations(didFinalize == false): " + deleted)
+        });
     }
 })
 
@@ -532,20 +535,24 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
             });
         });
         // TODO: Change preferred tables logic to accommodate for table combinations (arrays)
-        await Preference.findOne({ username: req.user.username }).then(async (info) => {
-            // console.log(info)
-            var arr = info.tables
-            arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-            const updateCount = await Preference.updateOne({ username: req.user.username }, {
-                username: req.body.username,
-                tables: arr
-            });
-        });
+        // await Preference.findOne({ username: req.user.username }).then(async (info) => {
+        //     // console.log(info)
+        //     var arr = info.tables
+        //     arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+        //     const updateCount = await Preference.updateOne({ username: req.user.username }, {
+        //         username: req.body.username,
+        //         tables: arr
+        //     });
+        // });
         reservation.save();
 
         // TODO: change initial reservation did finalize to true
+        const updateDidFinalizeFlag = await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+            didFinalize: true
+        });
         // clean up initial reservation
-
+        const deleteInitialReservation = await InitialReservation.deleteOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+        
         const highTraffic = lib.isHighTraffic(reservation.date);
         if (highTraffic) {
             res.redirect('/highTraffic');
@@ -571,6 +578,7 @@ app.get('/selectGuestTables', async (req, res) => {
             num_guests: startReservation.num_guests
         }
         min_max = lib.tableMinMax(initReservation.num_guests)
+
         // find reservations within table_num range on same date and time
         await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: min_max[0], $lte: min_max[1]}}).then((results) => {
             // console.log(results)
@@ -620,8 +628,13 @@ app.post('/selectGuestTables', async (req, res) => {
         })
         reservation.save();
 
-        // change initial reservation did finalize to false
-        // delete initial reservation
+        // TODO: change initial reservation did finalize to true
+        const updateDidFinalizeFlag = await InitialReservation.updateOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+            didFinalize: true
+        });
+        // clean up initial reservation
+        const deleteInitialReservation = await InitialReservation.deleteOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+        
 
         const highTraffic = lib.isHighTraffic(reservation.date);
         if (highTraffic) {
