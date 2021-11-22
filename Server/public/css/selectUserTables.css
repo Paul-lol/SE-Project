@@ -1,0 +1,84 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+  }
+  
+.clear {
+	clear: both;
+	line-height: 0;
+}
+
+#container {
+	height: 100%;
+	width: 100%;
+	background-image: url("bg2.jpg");
+	background-position: center;
+	background-size: cover;
+    position: fixed;
+	
+}
+
+div.inner_content {
+	max-width: 1200px;
+	height: auto;
+	padding: 20px;
+	margin: 0 auto;
+  }
+  
+h2.form_head {
+	font-family: Brush Script MT, Brush Script Std, cursive;
+	text-align: center;
+	color: #f3f3f3;
+	font-size: 60px;
+  }
+  
+p.form_slg {
+	text-align: center;
+	color: red;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 14px;
+  }
+  
+div.left {
+	float: left;
+	width: 50%;
+	height: auto;
+	padding: 20px;
+  }
+  
+label {
+	display: block;
+	margin-top: 10px;
+	margin-bottom: 5px;
+	color: #ffffff;
+	font-size: 20px;
+  }
+  
+input[type="submit"].submit {
+	width: 100%;
+	background: red;
+	color: #fff;
+	padding: 7px;
+	height: 40px;
+	border: 1px solid #ff5722;
+	font-size: 19px;
+	margin-top: 27px;
+	border-radius: 4px;
+  }
+
+.image {
+    background-image: url("tables.jpg");
+    background-repeat: no-repeat;
+    position: relative;
+    height: 100%;
+    width: 120%;
+}
+
+select {
+	width: 248px;
+	height: 35px;
+	margin: 10px;
+}
