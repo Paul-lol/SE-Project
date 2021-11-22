@@ -89,6 +89,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
 
+
 // HOME PAGE
 app.get('/', checkAuthenticated, async (req, res) => {
     // req.user has 3 attributes: username, password, new_user }
@@ -102,6 +103,7 @@ app.get('/', checkAuthenticated, async (req, res) => {
     }
 })
 
+
 // LOGIN
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login.ejs')
@@ -111,6 +113,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     failureRedirect: '/login',
     failureFlash: true
 }))
+
 
 // REGISTER 
 app.get('/register', checkNotAuthenticated, (req, res) => {
@@ -158,6 +161,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
+
 // GUEST REGISTER 
 app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
     res.render('guestRegister.ejs')
@@ -204,6 +208,7 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
 //     failureFlash: true
 // }))
 
+
 // PROFILE
 app.get('/profile', checkAuthenticated, async (req,res) => {
     if(req.user.new_user){
@@ -239,16 +244,15 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
     }
 })
 
+
 // EDIT PROFILE
 app.get('/editProfile', checkAuthenticated, (req, res) => {
     res.render('editProfile.ejs');
 })
-
-// POST PROFILE INFO
 app.post('/editProfile', checkAuthenticated, async (req,res) => {
-    console.log("DEBUG!!!!!!")
-    console.log(req.body);
-    console.log("DEBUG!!!!!!")
+    // console.log("DEBUG!!!!!!")
+    // console.log(req.body);
+    // console.log("DEBUG!!!!!!")
     const filter = { username: req.user.username };
     userInfo = {
         name: req.body.full_name,
@@ -296,6 +300,7 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
     res.redirect('/profile');
 })
 
+
 // bool for guestForm and userForm
 let reservationMessage = ""
 let reservationUnavailable = false
@@ -337,6 +342,7 @@ app.post('/guestForm', async (req,res) => {
         res.redirect('/selectGuestTables');
     }
 })
+
 
 // USER FORM
 app.get('/userForm', checkAuthenticated, async (req, res) => {
@@ -386,6 +392,7 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         res.redirect('/selectUserTables');
     }
 })
+
 
 /*
 Tables of 2: 1, 2, 3, 4, 5
@@ -453,6 +460,9 @@ async function combineTablesForEight(date, time){
         res.render('confirmation.ejs', {})
     })
 }
+
+
+// SELECT USER TABLES
 function combineTablesForSix(){}
 function combineTablesForFour(){}
 app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
@@ -547,6 +557,7 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
     })
 })
 
+
 //SELECT GUEST TABLES
 app.get('/selectGuestTables', async (req, res) => {
     var min_max = []
@@ -617,6 +628,7 @@ app.post('/selectGuestTables', async (req, res) => {
     })
 })
 
+
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
     if(req.user.new_user){
@@ -652,6 +664,7 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
     }
 })
 
+
 // GUEST PRE-CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
     // guest1234 
@@ -683,6 +696,7 @@ app.get('/guestPreConfirm', async(req, res) => {
     })
     res.render('guestPreConfirm.ejs', { data: reservation });
 })
+
 
 //GUEST CONFIRMATION
 app.get('/guestConfirmation', async(req, res) => {
@@ -716,6 +730,8 @@ app.get('/guestConfirmation', async(req, res) => {
     res.render('guestConfirmation.ejs', { data: reservation });
 })
 
+
+// HIGH TRAFFIC
 // hold fee during high traffic days
 // TODO: change to work with new reservation
 app.get('/highTraffic', async (req, res) => {
@@ -740,6 +756,7 @@ app.post('/highTraffic', async (req, res) => {
     }
 })
 
+
 // LOGOUT
 app.get('/logout', (req, res) => {
     req.logOut()
@@ -749,6 +766,7 @@ app.delete('/logout', (req, res) => {
     req.logOut()
     res.redirect('/login')
 })
+
 
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
