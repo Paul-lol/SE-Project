@@ -147,11 +147,6 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
-//VIEW TABLES
-app.get('/viewTables', (req, res) => {
-    res.render('viewTables.ejs')
-})
-
 // GUEST REGISTER 
 app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
     res.render('guestRegister.ejs')
@@ -421,6 +416,21 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         }
     })
 })
+
+//SELECT GUEST TABLES
+app.get('/selectGuestTables', (req, res) => {
+    res.render('selectGuestTables.ejs')
+})
+
+//app.post('/selectGuestTables')...
+
+//SELECT USER TABLES
+app.get('/selectUserTables', (req, res) => {
+    res.render('selectUserTables.ejs')
+})
+
+//app.post('selectUserTables')...
+
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
