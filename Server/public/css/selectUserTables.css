@@ -8,7 +8,7 @@
 .clear {
 	clear: both;
 	line-height: 0;
-  }
+}
 
 #container {
 	height: 100%;
@@ -16,7 +16,7 @@
 	background-image: url("bg2.jpg");
 	background-position: center;
 	background-size: cover;
-	position: fixed;
+    position: fixed;
 	overflow-y: auto;
 }
 
@@ -57,20 +57,6 @@ label {
 	font-size: 20px;
   }
   
-input[type="text"],
-[type="tel"],
-input[type="email"],
-input[type="number"],
-input[type="date"],
-input[type="time"] {
-	width: 100%;
-	border: 1px solid #cccccc;
-	padding: 7px;
-	height: 40px;
-	background: #efefef;
-	border-radius: 4px;
-  }
-  
 input[type="submit"].submit {
 	width: 100%;
 	background: red;
@@ -83,34 +69,18 @@ input[type="submit"].submit {
 	border-radius: 4px;
   }
 
-  @media only screen and (max-width: 1920px) {
-	/* For desktop: */
-	.col-1 {width: 8.33%;}
-	.col-2 {width: 16.66%;}
-	.col-3 {width: 25%;}
-	.col-4 {width: 33.33%;}
-	.col-5 {width: 41.66%;}
-	.col-6 {width: 50%;}
-	.col-7 {width: 58.33%;}
-	.col-8 {width: 66.66%;}
-	.col-9 {width: 75%;}
-	.col-10 {width: 83.33%;}
-	.col-11 {width: 91.66%;}
-	.col-12 {width: 100%;}
-  }
+.image {
+    background-image: url("tables.jpg");
+    background-repeat: no-repeat;
+    position: relative;
+    height: 150%;
+    width: 120%;
+    float: right; 
+    margin: 20px -120px;
+}
 
-  select {
+select {
 	width: 248px;
 	height: 35px;
 	margin: 10px;
-}
-
-#timeslot_error {
-	font-size: 30px;
-	color:rgba(192, 0, 0, 0.69)
-}
-
-.glyphicon.glyphicon-modal-window {
-    font-size: 25px;
-	/* color:rgb(255, 255, 255); */
 }

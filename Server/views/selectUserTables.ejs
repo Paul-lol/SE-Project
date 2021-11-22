@@ -1,0 +1,47 @@
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+<title>Select User Table</title>
+<link rel="stylesheet" type="text/css" href="css/selectUserTables.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="shortcut icon" href="css/pasta.png" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+	<div id="container">
+		<div class="content">
+			<div class="inner_content">
+			<form class="bookTable" action="/selectUserTables" method="POST">
+				<h2 class="form_head">Reservation Form</h2>
+				<p class="form_slg">We offer you the best reservation services</p>
+				<div class="left">
+					<div class="form_group"> 	
+						<label>Table #</label><br>
+						<select name="tables" id = "tables" required>
+							<option selected disabled>Select a table</option>
+							<% for(let i = 0; i < availableTables.length; i++){ %>
+								<option value=<%= availableTables[i] %>>Table <%= availableTables[i] %></option>
+							<% } %>
+						  </select>
+					</div>	
+				</div>
+				<div class="left">
+					<div class="form_group">
+						<input type="submit" class="submit" name="submit" value="RESERVE TABLE" />
+					</div>
+				</div>
+				<p class="clear"></p>
+					<div class="image">
+				</div>
+			</div>
+			</form>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+</script>
+</html>

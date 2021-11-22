@@ -17,6 +17,7 @@
     background-position: center;
     background-size: cover;
     position: fixed;
+	overflow-y: auto;
   }
 
 div.inner_content {
@@ -147,9 +148,4 @@ select {
 #timeslot_error {
 	font-size: 30px;
 	color:rgba(192, 0, 0, 0.69)
-}
-
-.glyphicon.glyphicon-modal-window {
-    font-size: 25px;
-	/* color:rgb(255, 255, 255); */
 }
