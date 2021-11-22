@@ -31,7 +31,7 @@
 						<select name="set_month" id="set_month" required>
 							<option value="01">01</option>
 						</select>
-						<select name="set_date" id="set_date" required>
+						<select name="set_year" id="set_year" required>
 							<option value="2021">2021</option>
 						</select>
 					</div>
@@ -41,7 +41,7 @@
 					</div>
 					<div class="form_group">
 						<label>ZIP/Postal Code</label>
-						<input type="text" name="zip_code" id="zip_code" pattern="[0-9]*" placeholder="11111" maxlength="5" required>
+						<input type="text" name="zip" id="zip" pattern="[0-9]*" placeholder="11111" maxlength="5" required>
 					</div>
 				</div>
 				
@@ -72,7 +72,7 @@
     // populates select objects with month and year for expiry date field
     function loadDropdown(){
         var x = document.getElementById("set_month");
-        var y = document.getElementById("set_date");
+        var y = document.getElementById("set_year");
         var l = x.options.length - 1;
         var newOption = new Option(99, 99)
 

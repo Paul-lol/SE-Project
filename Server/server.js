@@ -43,6 +43,13 @@ const initialReservationSchema = new mongoose.Schema({
     username: { type: String, required: true },
     didFinalize: { type: Boolean, required: true }
 });
+const holdFeeSchema = new mongoose.Schema({
+    card_name: { type: String, required: true },
+    card_num: { type: String, required: true },
+    expiry_date: { type: String, required: true },
+    security_code: { type: String, required: true },
+    zip: { type: Number, required: true }
+})
 
 // User Login Information
 const UserInfo = require('./models/UserInfo')
@@ -51,6 +58,7 @@ const Reservation = require('./models/Reservation')
 const Preference = mongoose.model("Preference", preferredTablesSchema);
 const PastaPoint = mongoose.model("PastaPoint", pastaPointSchema);
 const InitialReservation = mongoose.model("InitialReservation", initialReservationSchema);
+const HoldFee = mongoose.model("HoldFee", holdFeeSchema)
 
 const users = []
 let userInfo = {
@@ -763,7 +771,16 @@ app.get('/highTraffic', async (req, res) => {
     }
 })
 app.post('/highTraffic', async (req, res) => {
-    // TODO: save user input to database
+    // save holdFee to db
+    const holdFee = new HoldFee({
+        card_name: req.body.card_name,
+        card_num: req.body.card_number,
+        expiry_date: req.body.set_month + "/" + req.body.set_year,
+        security_code: req.body.security_code,
+        zip: req.body.zip
+    })
+    holdFee.save()
+
     if (isGuest) {
         isGuest = false
         res.redirect('/guestPreConfirm')
