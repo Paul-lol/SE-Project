@@ -119,10 +119,10 @@ var tablesOfSix = [12, 13, 14, 15, 16]
 var tablesOfEight = [17, 18, 19, 20]
 // parses through the results object array and returns array of available tables
 function identifyAvailableSingleTables(results, min_max){
-    // console.log("DEBUG identifyAvailableSingleTables")
-    // console.log(results)
     var r = results
+    // console.log("helper: results: " + results)
     var arr = []
+    // return all tables as available
     if (r.length == 0){
         var x = min_max[0]
         var y = min_max[1]
@@ -133,7 +133,6 @@ function identifyAvailableSingleTables(results, min_max){
         return arr
     } else {
         var tables = []
-        // console.log("min_max: " + min_max)
         switch (min_max[0]){
             case 1:
                 tables = tablesOfTwo
@@ -152,7 +151,7 @@ function identifyAvailableSingleTables(results, min_max){
                 return arr
         }
         for (var i = 0; i < tables.length; i++){
-            let obj = results.find(x => x.table_num === tables[i])
+            let obj = results.find(x => parseInt(x.table_num) === tables[i])
             // console.log("DEBUG: " + i)
             if (!obj){
                 arr.push(tables[i])
