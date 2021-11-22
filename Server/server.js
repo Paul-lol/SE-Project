@@ -155,11 +155,6 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
-//VIEW TABLES
-app.get('/viewTables', (req, res) => {
-    res.render('viewTables.ejs')
-})
-
 // GUEST REGISTER 
 app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
     res.render('guestRegister.ejs')
@@ -248,20 +243,22 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
 
 // POST PROFILE INFO
 app.post('/editProfile', checkAuthenticated, async (req,res) => {
-    // console.log(req.body);
+    console.log("DEBUG!!!!!!")
+    console.log(req.body);
+    console.log("DEBUG!!!!!!")
     const filter = { username: req.user.username };
     userInfo = {
         name: req.body.full_name,
         mail_street1: req.body.street1,
         mail_street2: req.body.street2,
-        bill_street1: '',
-        bill_street2: '',   
+        bill_street1: req.body.bill_street1,
+        bill_street2: req.body.bill_street2,   
         city_mail: req.body.city,
-        city_bill: '',
+        city_bill: req.body.bill_city,
         zip_mail: req.body.zip,
-        zip_bill: '',
+        zip_bill: req.body.bill_zip,
         state_mail: req.body.state,
-        state_bill: '',
+        state_bill: req.body.bill_state,
         preferred_payment: req.body.paymentmethod,
         username: req.user.username
     }
@@ -489,7 +486,6 @@ async function combineTablesForEight(date, time){
             })
         }
 
-
         // todo: save result to database as array
         // 
         res.render('confirmation.ejs', {})
@@ -561,6 +557,18 @@ app.get('/selectTables', checkAuthenticated, async(req,res) => {
 app.post('/selectTables', checkAuthenticated, async(req,res) => {
 
 })
+
+//SELECT GUEST TABLES
+app.get('/selectGuestTables', (req, res) => {
+    res.render('selectGuestTables.ejs')
+})
+//app.post('/selectGuestTables')...
+
+//SELECT USER TABLES
+app.get('/selectUserTables', (req, res) => {
+    res.render('selectUserTables.ejs')
+})
+//app.post('selectUserTables')...
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
@@ -704,4 +712,22 @@ function checkNotAuthenticated(req, res, next){
     next()
 }
 
-app.listen(3000);
+module.exports = {
+    checkAuth: function(){
+        return checkAuthenticated;
+    },
+    checkHist: function(){
+        return hist;
+    },
+    checkUsername: function(){
+        return users.inputUsername;
+    },
+    checkPassword: function(){
+        return users.inputPassword;
+    },
+    user: function() {
+        return userInfo;
+    },
+    server: app.listen(3000)
+}
+
