@@ -16,7 +16,7 @@
 	background-image: url("bg2.jpg");
 	background-position: center;
 	background-size: cover;
-        position: fixed;
+    position: fixed;
 	overflow-y: auto;
 }
 
@@ -75,10 +75,13 @@ input[type="submit"].submit {
     position: relative;
     height: 150%;
     width: 120%;
+    float: right; 
+    margin: 20px -120px;
+	
 }
 
 select {
-    width: 248px;
-    height: 35px;
-    margin: 10px;
+	width: 248px;
+	height: 35px;
+	margin: 10px;
 }
