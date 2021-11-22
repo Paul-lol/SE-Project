@@ -1,62 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Confirmation</title>
-<link rel="stylesheet" type="text/css" href="css/guestPreConfirm.css"/>
+<title>Confirm Reservation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="shortcut icon" href="css/pasta.png" />
-<script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+<link rel="stylesheet" type="text/css" href="css/confirmation.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-<div id="container">
-<div class="wrapper">
-    <div class="left">
-        <img src="css/profile.png" 
-        alt="user" width="100">
-        <h4><%= data.name %></h4>
-    </div>
-    <div class="right">
-        <div class="info">
-            <h3>Guest Details</h3>
-            <div class="info_data">
-                 <div class="data">
-                    <h4>Email</h4>
-                    <p><%= data.email %></p>
-                 </div>
-                 <div class="data">
-                   <h4>Phone</h4>
-                    <p><%= data.phone_num %></p>
-              </div>
-            </div>
+    <div id="container">
+        <div class="topnav">
+            <a href="/">Home</a>
+            <a href="/profile"> Profile </a>
+            <a href="/userForm"> Reserve </a>
+            <a class="active" href="/confirmation">Last Reservation</a>
+            <ul class="nav navbar-nav navbar-right">
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
         </div>
-      
-      <div class="projects">
-        <h3>Reservation</h3>
-          <div class="projects_data">
-            <div class="data">
-              <h4>Date</h4>
-              <p><%= data.date %></p>
-            </div>
-            <div class="data">
-              <h4>Time</h4>
-              <p><%= data.time %></p>
-            </div>
-            <div class="data">
-              <h4># of Guests</h4>
-              <p><%= data.num_guests %></p>
-            </div>
-            <div class="data">
-              <h4>Table #</h4>
-              <p><%= data.table_num %></p>
-            </div>
-          </div>
-      </div>
-      <div id = "final">
-        <p>Your account has been successfully created! You may login to complete your account registration. </p><br>
-        <button type = "button" class = "btn1" onClick="location.href='/login'">Login</button>
+        
+        <div class="test">
+            <h1>
+                Reservation Confirmation 
+            </h1>
+            <h2>
+                Name:
+            </h2>
+            <h3><%= data.name %></h3>
+            <h2>
+                Phone #
+            </h2>
+            <h3><%= data.phone_num %></h3>
+            <h2>
+                Email:
+            </h2>
+            <h3><%= data.email %></h3>
+
+            <h2>
+                Date of Reservation:
+            </h2>
+            <h3><%= data.date %></h3>
+            <h2>
+                Time:
+            </h2>
+            <h3><%= data.time %></h3>
+
+            <h2>
+                # of Guests:
+            </h2>
+            <h3><%= data.num_guests %></h3>
+            <h2>
+                Table #
+            </h2>
+            <h3><%= data.table_num %></h3>
         </div>
     </div>
-</div>
-</div>  
+
+<footer class="footer">
+    <img class="img-rounded" width="50" height="50" src="css/pasta.png">
+    <center>All Rights Reserved (2021)</center>
+</footer>
+
 </body>
 </html>
