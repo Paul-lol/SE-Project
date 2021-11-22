@@ -32,13 +32,25 @@ const preferredTablesSchema = new mongoose.Schema({
 const pastaPointSchema = new mongoose.Schema({
     username: { type: String, required: true },
     pasta_points: Number
-})
+});
+const initialReservationSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    phone_num: { type: String, required: true },
+    email: { type: String, required: true },
+    date: { type: Date, required: true },
+    time: { type: String, required: true },
+    num_guests: { type: Number, required: true },
+    username: { type: String, required: true },
+    didFinalize: { type: Boolean, required: true }
+});
+
 // User Login Information
 const UserInfo = require('./models/UserInfo')
 const User = require('./models/User')
 const Reservation = require('./models/Reservation')
 const Preference = mongoose.model("Preference", preferredTablesSchema);
 const PastaPoint = mongoose.model("PastaPoint", pastaPointSchema);
+const InitialReservation = mongoose.model("InitialReservation", initialReservationSchema);
 
 const users = []
 let userInfo = {
@@ -54,15 +66,6 @@ let userInfo = {
     state_mail: '',
     state_bill: '',
     preferred_payment: 'Cash'
-};
-let reservation = {
-    name: '',
-    phone_num: '',
-    email: '',
-    date: '01-01-2021',
-    time: '00:00',
-    num_guests: '0',
-    table_num: 0
 };
 let initReservation = {
     name: '',
@@ -311,43 +314,28 @@ app.get('/guestForm', async (req, res) => {
     res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
 })
 app.post('/guestForm', async (req,res) => {
-    await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
-        // console.log("Count: " + count)
-        if (count >= 1) {
-            reservationUnavailable = true
-            res.redirect('/guestForm')
-        } else {
-            reservation = {
-                name: req.body.name,
-                phone_num: req.body.phone,
-                email: req.body.email,
-                date: req.body.date_res,
-                time: req.body.set_hr + ":" + req.body.set_min,
-                num_guests: req.body.guest,
-                table_num: req.body.tablenum
-            }
-            const newReservation = new Reservation({
-                name: reservation.name,
-                phone_num: reservation.phone_num,
-                email: reservation.email,
-                date: reservation.date,
-                time: reservation.time,
-                num_guests: reservation.num_guests,
-                table_num: reservation.table_num,
-                username: "guest"
-            })
-            console.log("\nnewReservation")
-            console.log(newReservation)
-            const highTraffic = lib.isHighTraffic(newReservation.date);
-            await newReservation.save();
-            reservationMessage = ""
-            if (highTraffic) {
-                res.redirect('/highTraffic');
-            } else {
-                res.redirect('/guestPreConfirm');
-            }
-        }
+    const initialReservation = new InitialReservation({
+        name: req.body.name,
+        phone_num: req.body.phone,
+        email: req.body.email,
+        date: req.body.date_res,
+        time: req.body.set_hr + ":" + req.body.set_min,
+        num_guests: req.body.guest,
+        username: 'guest',
+        didFinalize: false
     })
+    console.log("\nInitial Reservation: ")
+    console.log(initialReservation)
+    const highTraffic = lib.isHighTraffic(initialReservation.date);
+
+    await initialReservation.save();
+    reservationMessage = ""
+    // TODO: Change highTraffic to work with new reservation form
+    if (highTraffic) {
+        res.redirect('/highTraffic');
+    } else {
+        res.redirect('/selectGuestTables');
+    }
 })
 
 // USER FORM
@@ -368,61 +356,35 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
     }
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
-    await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
-        // console.log("Count: " + count)
-        if (count >= 1) {
-            reservationUnavailable = true
-            res.redirect('/userForm')
-        } else {
-            reservation = {
-                name: req.body.name,
-                phone_num: req.body.phone,
-                email: req.body.email,
-                date: req.body.date_res,
-                time: req.body.set_hr + ":" + req.body.set_min,
-                num_guests: req.body.guest,
-                table_num: req.body.tablenum
-            }
-            await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
-                // console.log(info)
-                var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
-                const prevPastaPoints = info.pasta_points
-                const updatePoints = await PastaPoint.updateOne({ username: req.user.username }, {
-                    username: req.user.username,
-                    pasta_points: prevPastaPoints + randomNum
-                });
-            });
-            await Preference.findOne({ username: req.user.username }).then(async (info) => {
-                // console.log(info)
-                var arr = info.tables
-                arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-                const updateCount = await Preference.updateOne({ username: req.user.username }, {
-                    username: req.body.username,
-                    tables: arr
-                });
-            });
-            const newReservation = new Reservation({
-                name: reservation.name,
-                phone_num: reservation.phone_num,
-                email: reservation.email,
-                date: reservation.date,
-                time: reservation.time,
-                num_guests: reservation.num_guests,
-                table_num: reservation.table_num,
-                username: req.user.username
-            })
-            console.log("\nnewReservation")
-            console.log(newReservation)
-            const highTraffic = lib.isHighTraffic(newReservation.date);
-            await newReservation.save();
-            reservationMessage = ""
-            if (highTraffic) {
-                res.redirect('/highTraffic');
-            } else {
-                res.redirect('/confirmation');
-            }
-        }
+    // TODO: remove/update validation for unavailable reservation
+    // await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
+    //     // console.log("Count: " + count)
+    //     if (count >= 1) {
+    //         reservationUnavailable = true
+    //         res.redirect('/userForm')
+    //     } else {
+    const initialReservation = new InitialReservation({
+        name: req.body.name,
+        phone_num: req.body.phone,
+        email: req.body.email,
+        date: req.body.date_res,
+        time: req.body.set_hr + ":" + req.body.set_min,
+        num_guests: req.body.guest,
+        username: req.user.username,
+        didFinalize: false
     })
+    console.log("\nInitial Reservation: ")
+    console.log(initialReservation)
+    const highTraffic = lib.isHighTraffic(initialReservation.date);
+
+    await initialReservation.save();
+    reservationMessage = ""
+    // TODO: Change highTraffic to work with new reservation form
+    if (highTraffic) {
+        res.redirect('/highTraffic');
+    } else {
+        res.redirect('/selectUserTables');
+    }
 })
 
 /*
@@ -447,17 +409,17 @@ async function combineTablesForEight(date, time){
 
         var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
 
-        if (availableTablesOfFour.length() == 1){
+        if (availableTablesOfFour.length == 1){
             tableOfFour = availableTablesOfFour[0];
         }
 
-        if (availableTablesOfFour.length() >= 2){
+        if (availableTablesOfFour.length >= 2){
             result = availableTablesOfFour.flatMap(
                 (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
             );
             console.log(result)
 
-        } else if (availableTablesOfFour.length() == 0){
+        } else if (availableTablesOfFour.length == 0){
 
             // find tables of 6 VVV
             await Reservation.find({ date: date, time: time, table_num: { $gte: 12, $lte: 16}}).then(async (reservedTablesOfSix) => {
@@ -468,13 +430,13 @@ async function combineTablesForEight(date, time){
                     var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
 
                     // if availableTablesOfTwo == 0, there are no possible combinations left for party of 8
-                    if (availableTablesOfTwo.length() == 0){
+                    if (availableTablesOfTwo.length == 0){
                         console.log("No possible combinations left")
                         // no possible combinations for table for eight left
                         // delete initial reservation and redirect user back to reservation form page 1 to select another time and date
                         res.redirect('/userForm');
                     // else if availableTablesOfSix >= 1, combine table of 6 + 2
-                    } else if (availableTablesOfSix.length() >= 1){
+                    } else if (availableTablesOfSix.length >= 1){
 
                     }
                     // else if availableTablesOfTwo.length() >= 2 AND availableTablesOfFour.length() == 1, combine 2 + 2 + 4
@@ -493,20 +455,10 @@ async function combineTablesForEight(date, time){
 }
 function combineTablesForSix(){}
 function combineTablesForFour(){}
-app.get('/selectTables', checkAuthenticated, async(req,res) => {
+app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
     } else {
-        /* initial reservation (in db) will have fields:
-        username
-        Name
-        Phone #
-        Date
-        Time
-        Number of Guests
-        finalized (bool)
-         */
-        // Filter : { date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }
         var min_max = []
         var availableTables = []
         await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 }).then(async(startReservation) => {
@@ -522,14 +474,15 @@ app.get('/selectTables', checkAuthenticated, async(req,res) => {
             min_max = lib.tableMinMax(initReservation.num_guests)
             // find reservations within table_num range on same date and time
             await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: min_max[0], $lte: min_max[1]}}).then((results) => {
-                console.log(results)
+                // console.log(results)
                 availableTables = lib.identifyAvailableSingleTables(results, min_max)
-
+                console.log("Available tables:\n" + availableTables)
                 // if there are available non-combined tables
-                if (availableTables.length() > 0) {
-                    res.render('selectTables.ejs', { availableTables: availableTables});
+                if (availableTables.length > 0) {
+                    res.render('selectUserTables.ejs', {availableTables: availableTables});
+            
+                // ELSE, COMBINE TABLES
                 } else {
-                    // combine tables here
                     var tables = []
                     switch (min_max[0]){
                         case 17:
@@ -554,21 +507,116 @@ app.get('/selectTables', checkAuthenticated, async(req,res) => {
         })
     }
 })
-app.post('/selectTables', checkAuthenticated, async(req,res) => {
+app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
+    await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 }).then(async(initialReservation) => {
+        console.log(initialReservation);
+        const reservation = new Reservation({
+            name: initialReservation.name,
+            phone_num: initialReservation.phone_num,
+            email: initialReservation.email,
+            date: initialReservation.date,
+            time: initialReservation.time,
+            num_guests: initialReservation.num_guests,
+            username: req.user.username,
+            table_num: req.body.tables
+        })
+        await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
+            // console.log(info)
+            var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
+            const prevPastaPoints = info.pasta_points
+            const updatePoints = await PastaPoint.updateOne({ username: req.user.username }, {
+                username: req.user.username,
+                pasta_points: prevPastaPoints + randomNum
+            });
+        });
+        // TODO: Change preferred tables logic to accommodate for table combinations (arrays)
+        await Preference.findOne({ username: req.user.username }).then(async (info) => {
+            // console.log(info)
+            var arr = info.tables
+            arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+            const updateCount = await Preference.updateOne({ username: req.user.username }, {
+                username: req.body.username,
+                tables: arr
+            });
+        });
+        reservation.save();
 
+        // change initial reservation did finalize to false
+        // delete initial reservation
+        res.redirect('/confirmation');
+    })
 })
 
 //SELECT GUEST TABLES
-app.get('/selectGuestTables', (req, res) => {
+app.get('/selectGuestTables', async (req, res) => {
+    var min_max = []
+    var availableTables = []
+    await InitialReservation.findOne({ username: 'guest'}).sort({ _id: -1 }).then(async(startReservation) => {
+        console.log("Initial Guest Reservation Information: ")
+        console.log(startReservation)
+        initReservation = {
+            name: startReservation.name,
+            phone_num: startReservation.phone_num,
+            date: startReservation.date,
+            time: startReservation.time,
+            num_guests: startReservation.num_guests
+        }
+        min_max = lib.tableMinMax(initReservation.num_guests)
+        // find reservations within table_num range on same date and time
+        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: min_max[0], $lte: min_max[1]}}).then((results) => {
+            // console.log(results)
+            availableTables = lib.identifyAvailableSingleTables(results, min_max)
+            console.log("Available tables:\n" + availableTables)
+            // if there are available non-combined tables
+            if (availableTables.length > 0) {
+                res.render('selectUserTables.ejs', {availableTables: availableTables});
+                
+            // ELSE, COMBINE TABLES
+            } else {
+                var tables = []
+                switch (min_max[0]){
+                    case 17:
+                        tables = combineTablesForEight(initReservation.date, initReservation.time)
+                        break;
+                    case 12:
+                        tables = combineTablesForSix(initReservation.date, initReservation.time)
+                        break;
+                    case 6:
+                        tables = combineTablesForFour(initReservation.date, initReservation.time)
+                        break;
+                    case 1:
+                        // no possible combinations for table for two
+                        // delete initial reservation and redirect user back to reservation form page 1 to select another time and date
+                        res.redirect('/guestForm');
+                        break;
+                    default:
+                        console.log("ERROR")
+                }
+            }
+        })
+    })
     res.render('selectGuestTables.ejs')
 })
-//app.post('/selectGuestTables')...
+app.post('/selectGuestTables', async (req, res) => {
+    await InitialReservation.findOne({ username: "guest" }).sort({ _id: -1 }).then(async(initialReservation) => {
+        console.log(initialReservation);
+        const reservation = new Reservation({
+            name: initialReservation.name,
+            phone_num: initialReservation.phone_num,
+            email: initialReservation.email,
+            date: initialReservation.date,
+            time: initialReservation.time,
+            num_guests: initialReservation.num_guests,
+            username: "guest",
+            table_num: req.body.tables
+        })
+        reservation.save();
 
-//SELECT USER TABLES
-app.get('/selectUserTables', (req, res) => {
-    res.render('selectUserTables.ejs')
+        // change initial reservation did finalize to false
+        // delete initial reservation
+        res.redirect('/guestConfirmation');
+    })
 })
-//app.post('selectUserTables')...
 
 // CONFIRMATION
 app.get('/confirmation', checkAuthenticated, async(req, res) => {
@@ -670,6 +718,7 @@ app.get('/guestConfirmation', async(req, res) => {
 })
 
 // hold fee during high traffic days
+// TODO: change to work with new reservation
 app.get('/highTraffic', async (req, res) => {
     if(isGuest) {
         await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
@@ -729,5 +778,6 @@ module.exports = {
         return userInfo;
     },
     server: app.listen(3000)
+    // localhost:3000
 }
 

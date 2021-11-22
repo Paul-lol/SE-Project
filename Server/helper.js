@@ -102,13 +102,13 @@ function tableMinMax(numGuests){
         var arr = [17, 20]
         return arr
     } else if (numGuests > 4) {
-        var arr = [11, 16]
+        var arr = [12, 16]
         return arr
     } else if (numGuests > 2) {
-        var arr = [5, 10]
+        var arr = [6, 10]
         return arr
     } else {
-        var arr = [1, 4]
+        var arr = [1, 5]
         return arr
     }
 }
@@ -119,17 +119,21 @@ var tablesOfSix = [12, 13, 14, 15, 16]
 var tablesOfEight = [17, 18, 19, 20]
 // parses through the results object array and returns array of available tables
 function identifyAvailableSingleTables(results, min_max){
+    // console.log("DEBUG identifyAvailableSingleTables")
+    // console.log(results)
+    var r = results
     var arr = []
-    if (results.length() == 0){
+    if (r.length == 0){
         var x = min_max[0]
         var y = min_max[1]
-        while(x < y) {
+        while(x <= y) {
             arr.push(x)
             x += 1
         }
         return arr
     } else {
         var tables = []
+        // console.log("min_max: " + min_max)
         switch (min_max[0]){
             case 1:
                 tables = tablesOfTwo
@@ -147,8 +151,9 @@ function identifyAvailableSingleTables(results, min_max){
                 console.log("No matching tables")
                 return arr
         }
-        for (var i = 0; i < tables.length(); i++){
+        for (var i = 0; i < tables.length; i++){
             let obj = results.find(x => x.table_num === tables[i])
+            // console.log("DEBUG: " + i)
             if (!obj){
                 arr.push(tables[i])
             }
