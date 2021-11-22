@@ -96,4 +96,65 @@ function getPreferredTable(arr){
   return arr.indexOf(maxTable)
 }
 
-module.exports = {getMinDate, parseDate, getFirstName, getLastName, isHighTraffic, getPreferredTable};
+// returns the table nums to query for
+function tableMinMax(numGuests){
+    if (numGuests > 6) {
+        var arr = [17, 20]
+        return arr
+    } else if (numGuests > 4) {
+        var arr = [11, 16]
+        return arr
+    } else if (numGuests > 2) {
+        var arr = [5, 10]
+        return arr
+    } else {
+        var arr = [1, 4]
+        return arr
+    }
+}
+
+var tablesOfTwo = [1, 2, 3, 4, 5]
+var tablesOfFour = [6, 7, 8, 9, 10, 11]
+var tablesOfSix = [12, 13, 14, 15, 16]
+var tablesOfEight = [17, 18, 19, 20]
+// parses through the results object array and returns array of available tables
+function identifyAvailableSingleTables(results, min_max){
+    var arr = []
+    if (results.length() == 0){
+        var x = min_max[0]
+        var y = min_max[1]
+        while(x < y) {
+            arr.push(x)
+            x += 1
+        }
+        return arr
+    } else {
+        var tables = []
+        switch (min_max[0]){
+            case 1:
+                tables = tablesOfTwo
+                break;
+            case 6:
+                tables = tablesOfFour
+                break;
+            case 12:
+                tables = tablesOfSix
+                break;
+            case 17:
+                tables = tablesOfEight
+                break;
+            default:
+                console.log("No matching tables")
+                return arr
+        }
+        for (var i = 0; i < tables.length(); i++){
+            let obj = results.find(x => x.table_num === tables[i])
+            if (!obj){
+                arr.push(tables[i])
+            }
+        }
+        return arr
+    }
+}
+
+module.exports = {getMinDate, parseDate, getFirstName, getLastName, isHighTraffic, getPreferredTable, tableMinMax, identifyAvailableSingleTables};
