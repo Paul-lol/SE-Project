@@ -778,5 +778,7 @@ module.exports = {
     },
     server: app.listen(3000)
     // localhost:3000
+    // mongodb compass string:
+    // mongodb+srv://SEAdmin:*****@se-cluster.yazhn.mongodb.net/SE_Project_Database?authSource=admin&replicaSet=atlas-skcewq-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
 }
 
