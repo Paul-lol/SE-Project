@@ -17,6 +17,7 @@
 	background-position: center;
 	background-size: cover;
 	position: fixed;
+	overflow-y: auto;
 }
 
 div.inner_content {
