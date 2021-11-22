@@ -541,8 +541,8 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         });
         reservation.save();
 
-        // TODO: change initial reservation did finalize to false
-        // delete initial reservation
+        // TODO: change initial reservation did finalize to true
+        // clean up initial reservation
         res.redirect('/confirmation');
     })
 })
