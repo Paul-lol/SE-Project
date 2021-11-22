@@ -479,7 +479,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                 console.log("Available tables:\n" + availableTables)
                 // if there are available non-combined tables
                 if (availableTables.length > 0) {
-                    res.render('selectUserTables.ejs', {availableTables: availableTables});
+                    res.render('selectUserTables.ejs', { availableTables: availableTables });
             
                 // ELSE, COMBINE TABLES
                 } else {
@@ -541,7 +541,7 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         });
         reservation.save();
 
-        // change initial reservation did finalize to false
+        // TODO: change initial reservation did finalize to false
         // delete initial reservation
         res.redirect('/confirmation');
     })
@@ -569,8 +569,8 @@ app.get('/selectGuestTables', async (req, res) => {
             console.log("Available tables:\n" + availableTables)
             // if there are available non-combined tables
             if (availableTables.length > 0) {
-                res.render('selectUserTables.ejs', {availableTables: availableTables});
-                
+                res.render('selectGuestTables.ejs', { availableTables: availableTables });
+
             // ELSE, COMBINE TABLES
             } else {
                 var tables = []
@@ -595,7 +595,6 @@ app.get('/selectGuestTables', async (req, res) => {
             }
         })
     })
-    res.render('selectGuestTables.ejs')
 })
 app.post('/selectGuestTables', async (req, res) => {
     await InitialReservation.findOne({ username: "guest" }).sort({ _id: -1 }).then(async(initialReservation) => {
@@ -614,7 +613,7 @@ app.post('/selectGuestTables', async (req, res) => {
 
         // change initial reservation did finalize to false
         // delete initial reservation
-        res.redirect('/guestConfirmation');
+        res.redirect('/guestPreConfirm');
     })
 })
 
