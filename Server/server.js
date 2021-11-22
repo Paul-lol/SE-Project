@@ -261,9 +261,6 @@ app.get('/editProfile', checkAuthenticated, (req, res) => {
     res.render('editProfile.ejs');
 })
 app.post('/editProfile', checkAuthenticated, async (req,res) => {
-    // console.log("DEBUG!!!!!!")
-    // console.log(req.body);
-    // console.log("DEBUG!!!!!!")
     const filter = { username: req.user.username };
     userInfo = {
         name: req.body.full_name,
