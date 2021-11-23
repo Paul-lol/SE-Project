@@ -489,7 +489,9 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                                 if (availableTablesOfTwo.length == 4){
                                                     tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
                                                 } else {
+
                                                     tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
+                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[4])
                                                     tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
                                                     tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
                                                     tables.push(availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
@@ -532,17 +534,8 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                     // combine tables of 2 + 2 + 2
                                     } else if (availableTablesOfFour.length == 0 && availableTablesOfTwo.length >= 3) {
                                         for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                            for (var j = i; j < availableTablesOfTwo.length; j++){
-                                                if (availableTablesOfTwo[i] == availableTablesOfTwo[j]){
-                                                    continue
-                                                }
-                                                for (var k = j; k < availableTablesOfTwo.length; k++){
-                                                    if (availableTablesOfTwo[i] == availableTablesOfTwo[k]){
-                                                        continue
-                                                    }
-                                                    if (availableTablesOfTwo[j] == availableTablesOfTwo[k]){
-                                                        continue
-                                                    }
+                                            for (var j = i+1; j < availableTablesOfTwo.length; j++){
+                                                for (var k = j+1; k < availableTablesOfTwo.length; k++){
                                                     combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + availableTablesOfTwo[k]
                                                     tables.push(combinations)
                                                 }
@@ -569,10 +562,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                 // combinations 2 + 2
                                 if (availableTablesOfTwo.length >= 2) {
                                     for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                        for (var j = i; j < availableTablesOfTwo.length; j++){
-                                            if (availableTablesOfTwo[i] == availableTablesOfTwo[j]){
-                                                continue
-                                            }
+                                        for (var j = i+1; j < availableTablesOfTwo.length; j++){
                                             combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j]
                                             tables.push(combinations)
                                         }
