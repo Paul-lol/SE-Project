@@ -396,24 +396,8 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
 })
 
 
-/*
-Tables of 2: 1, 2, 3, 4, 5
-Tables of 4: 6, 7, 8, 9, 10, 11
-Tables of 6: 12, 13, 14, 15, 16
-Tables of 8: 17, 18, 19, 20
-*/
-/* let initReservation = {
-    name: '',
-    phone_num: '',
-    email: '',
-    date: '01-01-2021',
-    time: '00:00',
-    num_guests: '0'
-} */
 // TABLE SELECTION (Reservation page 2)
 // SELECT USER TABLES
-function combineTablesForSix(){}
-function combineTablesForFour(){}
 app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
@@ -436,7 +420,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
             await Reservation.find({ date: initReservation.date, time: initReservation.time}).then(async (results) => {
                 // console.log("Reservations: " + results)
                 availableTables = lib.identifyAvailableSingleTables(results, min_max)
-                console.log("Available tables:\n" + availableTables)
+                // console.log("Available tables:\n" + availableTables)
                 // if there are available non-combined tables
                 if (availableTables.length > 0) {
 
@@ -450,7 +434,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                 ).then(async (reservedTablesOfFour) => {
 
                                 var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-                                console.log("availableTablesOfFour: " + availableTablesOfFour)
+                                // console.log("availableTablesOfFour: " + availableTablesOfFour)
                                 var tables = []
                                 var tableOfFour = 0
                                 var combination = ""
@@ -517,7 +501,6 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                             } else {
                                                 console.log("No possible combinations")
                                             }
-
                                             // else, no combinations left, return user to page 1 to select different reservation
                                         })
                                     })
