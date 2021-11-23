@@ -105,7 +105,7 @@ function tableMinMax(numGuests){
         var arr = [12, 16]
         return arr
     } else if (numGuests > 2) {
-        var arr = [6, 10]
+        var arr = [6, 11]
         return arr
     } else {
         var arr = [1, 5]

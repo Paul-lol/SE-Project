@@ -204,6 +204,11 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
                     tables: emptyArr
                 })
                 userTables.save();
+                const userPoints = new PastaPoint({
+                    username: req.body.inputUsername,
+                    pasta_points: 0
+                })
+                userPoints.save();
                 console.log(userInfo);
                 res.redirect('/guestConfirmation')
             }
@@ -409,73 +414,6 @@ Tables of 8: 17, 18, 19, 20
     num_guests: '0'
 } */
 // TABLE SELECTION (Reservation page 2)
-async function combineTablesForEight(date, time){
-    var result = []
-    // find tables of 4
-    await Reservation.find({ date: date, time: time, table_num: { $gte: 6, $lte: 11}}).then(async (reservedTablesOfFour) => {
-
-        var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-        var tables = []
-
-        if (availableTablesOfFour.length == 1){
-            tableOfFour = availableTablesOfFour[0];
-        }
-
-        if (availableTablesOfFour.length >= 2){
-            result = availableTablesOfFour.flatMap(
-                (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
-            );
-            console.log("4Table + 4Table: " + result)
-
-        } else if (availableTablesOfFour.length == 0){
-
-            // find tables of 6 VVV
-            await Reservation.find({ date: date, time: time, table_num: { $gte: 12, $lte: 16}}).then(async (reservedTablesOfSix) => {
-                var availableTablesOfSix = lib.identifyAvailableSingleTables(reservedTablesOfSix, [12, 16])
-
-                // find tables of 2  VVV
-                await Reservation.find({ date: date, time: time, table_num: { $gte: 1, $lte: 5}}).then(async (reservedTablesOfTwo) => {
-                    var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-
-                    // if availableTablesOfTwo == 0, there are no possible combinations left for party of 8
-                    if (availableTablesOfTwo.length == 0){
-                        console.log("No possible combinations left")
-                        // no possible combinations for table for eight left
-                        // delete initial reservation and redirect user back to reservation form page 1 to select another time and date
-                        res.redirect('/userForm');
-                    // else if availableTablesOfSix >= 1, combine table of 6 + 2
-                    } else if (availableTablesOfSix.length >= 1){
-                        var combination = ""
-                        for (var i = 0; i < availableTablesOfSix.length; i++) {
-                            for (var j = 0; j < availableTablesOfTwo.length; i++) {
-                                combination = availableTablesOfSix[i] + " + " + availableTablesOfTwo[j]
-                                tables.push(combination)
-                                console.log("Table6 + Table2: " + tables)
-                            }
-                        }
-
-                    // else if availableTablesOfTwo.length() >= 2 AND availableTablesOfFour.length() == 1, combine 2 + 2 + 4
-                    } else if (availableTablesOfTwo.length >= 2 && availableTablesOfFour.length == 1) {
-
-                    // else if availableTablesOfTwo.length() >= 4, combine 2 + 2 + 2 + 2
-                    } else if (availableTablesOfTwo.length >= 4) {
-
-                    } else {
-                        // if user return to userForm
-                        res.redirect('/userForm')
-                        // TODO: return user to guestForm if guest
-                    }
-
-                    // else, no combinations left, return user to page 1 to select different reservation
-                })
-            })
-        }
-
-        // todo: save result to database as array
-        // 
-        res.render('confirmation.ejs', {})
-    })
-}
 // SELECT USER TABLES
 function combineTablesForSix(){}
 function combineTablesForFour(){}
@@ -496,20 +434,91 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                 num_guests: startReservation.num_guests
             }
             min_max = lib.tableMinMax(initReservation.num_guests)
+            console.log(min_max)
             // find reservations within table_num range on same date and time
-            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: min_max[0], $lte: min_max[1]}}).then((results) => {
+            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: min_max[0], $lte: min_max[1]}}).then(async (results) => {
                 console.log("Reservations: " + results)
                 availableTables = lib.identifyAvailableSingleTables(results, min_max)
                 console.log("Available tables:\n" + availableTables)
                 // if there are available non-combined tables
                 if (availableTables.length > 0) {
-                    console.log("continue . . . ")
+
                 // ELSE, COMBINE TABLES
                 } else {
-                    var tables = []
                     switch (min_max[0]){
                         case 17:
-                            tables = combineTablesForEight(initReservation.date, initReservation.time)
+                            var result = []
+                            // find tables of 4
+                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: 6, $lte: 11}}).then(async (reservedTablesOfFour) => {
+
+                                var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
+                                console.log("availableTablesOfFour: " + availableTablesOfFour)
+                                var tables = []
+                                var tableOfFour = 0
+                                var combination = ""
+
+                                if (availableTablesOfFour.length == 1){
+                                    tableOfFour = availableTablesOfFour[0];
+                                }
+                                if (availableTablesOfFour.length >= 2){
+                                    result = availableTablesOfFour.flatMap(
+                                        (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
+                                    );
+                                    console.log("4Table + 4Table: " + result)
+                                    availableTables = result
+
+                                } else if (availableTablesOfFour.length == 0){
+
+                                    // find tables of 6 VVV
+                                    await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: 12, $lte: 16}}).then(async (reservedTablesOfSix) => {
+                                        var availableTablesOfSix = lib.identifyAvailableSingleTables(reservedTablesOfSix, [12, 16])
+
+                                        // find tables of 2  VVV
+                                        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $gte: 1, $lte: 5}}).then(async (reservedTablesOfTwo) => {
+                                            var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
+
+                                            // if availableTablesOfTwo == 0, there are no possible combinations left for party of 8
+                                            if (availableTablesOfTwo.length == 0){
+                                                console.log("No possible combinations left")
+                                                // no possible combinations for table for eight left
+                                                // delete initial reservation and redirect user back to reservation form page 1 to select another time and date
+                                                res.redirect('/userForm');
+                                            // else if availableTablesOfSix >= 1, combine table of 6 + 2
+                                            } else if (availableTablesOfSix.length >= 1){
+                                                for (var i = 0; i < availableTablesOfSix.length; i++) {
+                                                    for (var j = 0; j < availableTablesOfTwo.length; i++) {
+                                                        combination = availableTablesOfSix[i] + " + " + availableTablesOfTwo[j]
+                                                        tables.push(combination)
+                                                        console.log("Table6 + Table2: " + tables)
+                                                    }
+                                                }
+                                                availableTables = tables
+                                                res.render('selectUserTables.ejs', { availableTables: availableTables })
+
+                                            // else if availableTablesOfTwo.length() >= 2 AND availableTablesOfFour.length() == 1, combine 2 + 2 + 4
+                                            } else if (availableTablesOfTwo.length >= 2 && availableTablesOfFour.length == 1) {
+                                                for (var i = 0; i < availableTablesOfTwo; i++) {
+                                                    for (var j = 1; j < availableTablesOfTwo; j++){
+                                                        combination = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + tableOfFour
+                                                        tables.push(combination)
+                                                        console.log("Table2 + Table2 + Table4: " + tables)
+                                                    }
+                                                }
+                                                availableTables = tables
+                                                res.render('selectUserTables.ejs', { availableTables: availableTables })
+                                            // else if availableTablesOfTwo.length() >= 4, combine 2 + 2 + 2 + 2
+                                            } else if (availableTablesOfTwo.length >= 4) {
+                                                
+                                            } else {
+                                                // if user return to userForm
+                                                // TODO: return user to guestForm if guest
+                                            }
+
+                                            // else, no combinations left, return user to page 1 to select different reservation
+                                        })
+                                    })
+                                }
+                            })
                             break;
                         case 12:
                             tables = combineTablesForSix(initReservation.date, initReservation.time)
@@ -542,8 +551,11 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
             time: initialReservation.time,
             num_guests: initialReservation.num_guests,
             username: req.user.username,
-            table_num: req.body.tables
+            table_num: req.body.tables + ""
         })
+        console.log(req.body.tables)
+        reservation.save();
+        console.log(reservation)
         await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
             // console.log(info)
             var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
@@ -563,7 +575,6 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         //         tables: arr
         //     });
         // });
-        reservation.save();
 
         // TODO: change initial reservation did finalize to true
         const updateDidFinalizeFlag = await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
@@ -605,7 +616,7 @@ app.get('/selectGuestTables', async (req, res) => {
             console.log("Available tables:\n" + availableTables)
             // if there are available non-combined tables
             if (availableTables.length > 0) {
-                console.log("continue . . . ");
+
             // ELSE, COMBINE TABLES
             } else {
                 var tables = []
