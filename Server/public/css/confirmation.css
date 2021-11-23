@@ -30,6 +30,11 @@ h3 {
   background-position: center;
   background-size: cover;
   position: fixed;
+  overflow-y: auto;
+}
+
+.test {
+  padding-bottom: 80px;
 }
 
 #main {
@@ -46,6 +51,10 @@ h3 {
   text-align: center;
   color: black;
   font-size: 15px;
+}
+
+.center {
+  margin: auto;
 }
 
 .topnav {
