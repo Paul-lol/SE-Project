@@ -427,27 +427,26 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                 // ELSE, COMBINE TABLES
                 } else {
                     switch (min_max[0]){
+                        // combinations of 8
                         case 17:
-                            var result = []
+                            var tables = []
+                            var tableOfFour = 0
+                            var combination = ""
                             // find tables of 4
                             await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
                                 ).then(async (reservedTablesOfFour) => {
-
                                 var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
                                 // console.log("availableTablesOfFour: " + availableTablesOfFour)
-                                var tables = []
-                                var tableOfFour = 0
-                                var combination = ""
 
                                 if (availableTablesOfFour.length == 1){
                                     tableOfFour = availableTablesOfFour[0];
                                 }
                                 if (availableTablesOfFour.length >= 2){
-                                    result = availableTablesOfFour.flatMap(
+                                    tables = availableTablesOfFour.flatMap(
                                         (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
                                     );
                                     // console.log("4Table + 4Table: " + result)
-                                    availableTables = result
+                                    availableTables = tables
 
                                 } else if (availableTablesOfFour.length == 0 || availableTablesOfFour.length == 1){
 
@@ -507,16 +506,78 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                 }
                             })
                             break;
+                        // combinations of 6
                         case 12:
-                            tables = combineTablesForSix(initReservation.date, initReservation.time)
+                            var tables = []
+                            var combination = ""
+                            // find tables of 4
+                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
+                                ).then(async (reservedTablesOfFour) => {
+                                var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
+                                
+                                // find tables of 2
+                                await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
+                                    var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
+                                    
+                                    // table combinations 4 + 2
+                                    if (availableTablesOfFour.length >= 1 && availableTablesOfTwo.length >= 1){
+                                        for (var i = 0; i < availableTablesOfFour.length; i++){
+                                            for (var j = 0; j < availableTablesOfTwo.length; j++){
+                                                combinations = availableTablesOfFour[i] + " + " + availableTablesOfTwo[j]
+                                                tables.push(combinations)
+                                            }
+                                        }
+                                        availableTables = tables
+                                    
+                                    // combine tables of 2 + 2 + 2
+                                    } else if (availableTablesOfFour.length == 0 && availableTablesOfTwo.length >= 3) {
+                                        for (var i = 0; i < availableTablesOfTwo.length; i++){
+                                            for (var j = i; j < availableTablesOfTwo.length; j++){
+                                                if (availableTablesOfTwo[i] == availableTablesOfTwo[j]){
+                                                    continue
+                                                }
+                                                for (var k = j; k < availableTablesOfTwo.length; k++){
+                                                    if (availableTablesOfTwo[i] == availableTablesOfTwo[k]){
+                                                        continue
+                                                    }
+                                                    if (availableTablesOfTwo[j] == availableTablesOfTwo[k]){
+                                                        continue
+                                                    }
+                                                    combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + availableTablesOfTwo[k]
+                                                    tables.push(combinations)
+                                                }
+                                            }
+                                        }
+                                        availableTables = tables
+                                        console.log(availableTables)
+
+                                    // no combinations left
+                                    } else {
+                                        console.log("No possible combinations")
+                                    }
+                                })
+                            })
                             break;
+                        // combinations of 4
                         case 6:
-                            tables = combineTablesForFour(initReservation.date, initReservation.time)
-                            break;
-                        case 1:
-                            // no possible combinations for table for two
-                            // delete initial reservation and redirect user back to reservation form page 1 to select another time and date
-                            res.redirect('/userForm');
+                            var tables = []
+                            var combination = ""
+                            // find tables of two
+                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
+                                var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
+
+                                // combinations 2 + 2
+                                if (availableTablesOfTwo.length >= 2) {
+                                    for (var i = 0; i < availableTablesOfTwo.length; i++){
+                                        for (var j = i; j < availableTablesOfTwo.length; j++){
+                                            combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j]
+                                            tables.push(combinations)
+                                        }
+                                    }
+                                    availableTables = tables
+                                    console.log(availableTables)
+                                }
+                            })
                             break;
                         default:
                             console.log("ERROR")
