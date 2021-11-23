@@ -570,6 +570,9 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
                                 if (availableTablesOfTwo.length >= 2) {
                                     for (var i = 0; i < availableTablesOfTwo.length; i++){
                                         for (var j = i; j < availableTablesOfTwo.length; j++){
+                                            if (availableTablesOfTwo[i] == availableTablesOfTwo[j]){
+                                                continue
+                                            }
                                             combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j]
                                             tables.push(combinations)
                                         }
