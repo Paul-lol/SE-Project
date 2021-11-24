@@ -141,13 +141,10 @@ function identifyUsedSingleTables(reservations){
     return usedTables
 }
 
-
-var allTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
 var str_tablesOfTwo = ["1", "2", "3", "4", "5"]
 var str_tablesOfFour = ["6", "7", "8", "9", "10", "11"]
 var str_tablesOfSix = ["12", "13", "14", "15", "16"]
 var str_tablesOfEight = ["17", "18", "19", "20"]
-
 // pass in array with all available tables, returns only tables of eight
 function identifyTablesOfEight(tables){
     var arr = []
