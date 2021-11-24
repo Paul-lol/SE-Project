@@ -290,7 +290,7 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
         userInfo.city_bill = userInfo.city_mail;
     }
     // Insert into database
-    const user = await User.updateOne(filter, {
+    await User.updateOne(filter, {
         name: userInfo.name,
         mail_street1: userInfo.mail_street1,
         mail_street2: userInfo.mail_street2,
@@ -313,21 +313,12 @@ app.post('/editProfile', checkAuthenticated, async (req,res) => {
 
 
 // bool for guestForm and userForm
-let reservationMessage = ""
-let reservationUnavailable = false
 let isGuest = false
 // GUEST FORM
 app.get('/guestForm', async (req, res) => {
     isGuest = true
-    if (!reservationUnavailable){
-        reservationMessage = "";
-    } else if (reservationUnavailable){
-        // Validation if the reservation is unavailable - display message in view
-        reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
-        reservationUnavailable = false;
-    }
     let min_date = lib.getMinDate()
-    res.render('guestForm.ejs', { min_date: min_date, reservationMessage: reservationMessage});
+    res.render('guestForm.ejs', { min_date: min_date });
 })
 app.post('/guestForm', async (req,res) => {
     const initialReservation = new InitialReservation({
@@ -340,13 +331,7 @@ app.post('/guestForm', async (req,res) => {
         username: 'guest',
         didFinalize: false
     })
-
-    console.log("\nInitial Reservation: ")
-    console.log(initialReservation)
     await initialReservation.save();
-
-    reservationMessage = ""
-
     res.redirect('/selectGuestTables');
 })
 
@@ -356,26 +341,11 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
     } else {
-        if (!reservationUnavailable){
-            reservationMessage = "";
-        } else if (reservationUnavailable){
-            // Validation if the reservation is unavailable - display message in view
-            reservationMessage = "The selected table, date, and time are unavailable.\nPlease select a different reservation."
-            reservationUnavailable = false;
-        }
         let min_date = lib.getMinDate()
-        //res.render('fuel_quote.ejs', {user: userInfo, min_date});
-        res.render('userForm.ejs', { min_date: min_date, reservationMessage: reservationMessage });
+        res.render('userForm.ejs', { min_date: min_date });
     }
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
-    // TODO: remove/update validation for unavailable reservation
-    // await Reservation.countDocuments({ date: req.body.date_res, time: req.body.set_hr + ":" + req.body.set_min, table_num: req.body.tablenum }).then(async (count) => {
-    //     // console.log("Count: " + count)
-    //     if (count >= 1) {
-    //         reservationUnavailable = true
-    //         res.redirect('/userForm')
-    //     } else {
     const initialReservation = new InitialReservation({
         name: req.body.name,
         phone_num: req.body.phone,
@@ -386,11 +356,7 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         username: req.user.username,
         didFinalize: false
     })
-    // console.log("\nInitial Reservation: ")
-    // console.log(initialReservation)
     await initialReservation.save();
-    reservationMessage = ""
-
     res.redirect('/selectUserTables');
 })
 
@@ -512,8 +478,8 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         // console.log(req.body.tables)
         reservation.save();
         console.log(reservation)
+        // update Pasta Points
         await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
-            // console.log(info)
             var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
             const prevPastaPoints = info.pasta_points
             await PastaPoint.updateOne({ username: req.user.username }, {
@@ -521,18 +487,21 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
                 pasta_points: prevPastaPoints + randomNum
             });
         });
-        // TODO: Change preferred tables logic to accommodate for table combinations (arrays)
-        // await Preference.findOne({ username: req.user.username }).then(async (info) => {
-        //     // console.log(info)
-        //     var arr = info.tables
-        //     arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-        //     const updateCount = await Preference.updateOne({ username: req.user.username }, {
-        //         username: req.body.username,
-        //         tables: arr
-        //     });
-        // });
-
-        // TODO: change initial reservation did finalize to true
+        // update preferred diner
+        await Preference.findOne({ username: req.user.username }).then(async (info) => {
+            var arr = info.tables, tables = []
+            arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+            // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
+            tables = lib.parseTableNum(reservation.table_num)
+            // update arr[i - 1] += 1
+            for (var i = 0; i < tables.length; i++){
+                arr[tables[i]] += 1
+            }
+            await Preference.updateOne({ username: req.user.username }, {
+                username: req.body.username,
+                tables: arr
+            });
+        });
         await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
             didFinalize: true
         });
@@ -659,11 +628,7 @@ app.post('/selectGuestTables', async (req, res) => {
             username: "guest",
             table_num: req.body.tables + ""
         })
-        // console.log(req.body.tables)
         reservation.save();
-        // console.log(reservation)
-
-        // TODO: change initial reservation did finalize to true
         await InitialReservation.updateOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
             didFinalize: true
         });

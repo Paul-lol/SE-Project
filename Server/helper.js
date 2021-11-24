@@ -113,6 +113,19 @@ function tableMinMax(numGuests){
     }
 }
 
+// returns the string of table_num "1" or "1 + 2 + 3" or "_ + _ + _ + _" ... etc as an array of numbers
+function parseTableNum(table_num){
+    var s = ""
+    var arr = []
+    var intArr = []
+    s = table_num.replace(/\s+/g, '');
+    arr = s.split("+")
+    for (var i = 0; i < arr.length; i++){
+        intArr.push(parseInt(arr[i]))
+    }
+    return intArr
+}
+
 function identifyUsedCombinedTables(reservations){
     var r = reservations
     var usedTables = [], tempArr = []
@@ -281,5 +294,6 @@ module.exports = {
     combineFourAndTwo,
     combineTwoX3,
     combineTwoX2,
-    combineFourX2
+    combineFourX2,
+    parseTableNum
 };
