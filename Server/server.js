@@ -408,7 +408,6 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
     let initialReservation = await InitialReservation.findOne({ 
         username: req.user.username
     }).sort({ _id: -1 })
-
     // set min_max based on number of guests
     min_max = lib.tableMinMax(initialReservation.num_guests)
 
@@ -440,89 +439,60 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
     tablesOfTwo = lib.identifyTablesOfTwo(availableSingleTables)
 
     // combine tables
-    var combination = ""
     var tables = []
     switch(min_max[0]){
+    // tables of eight combinations
     case 17:
         if(tablesOfEight.length > 0){
             tables = tablesOfEight
         } else if (tablesOfFour.length >= 2){
-            tables = tablesOfFour.flatMap((v, i) => tablesOfFour.slice(i + 1).map( w => v + ' + ' + w ))
+            tables = lib.combineFourX2(tablesOfFour)
         } else if (tablesOfSix.length >= 1 && tablesOfTwo.length >= 1){
-            for (var i = 0; i < tablesOfSix.length; i++) {
-                for (var j = 0; j < tablesOfTwo.length; j++) {
-                    combination = tablesOfSix[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
-        } else if (tablesOfTwo.length >= 2 && tablesOfFour.length == 1) {
-            for (var i = 0; i < tablesOfTwo.length; i++) {
-                for (var j = i + 1; j < tablesOfTwo.length; j++){
-                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfFour[0]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineSixAndTwo(tablesOfSix, tablesOfTwo)
+        } else if (tablesOfFour.length == 1 && tablesOfTwo.length >= 2) {
+            tables = lib.combineFourAndTwoX2(tablesOfFour, tablesOfTwo)
         } else if (tablesOfTwo.length >= 4) {
-            if (tablesOfTwo.length == 4){
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
-            } else {
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-            }
+            tables = lib.combineTwoX4(tablesOfTwo)
         } else {
-            console.log("No possible combinations")
+            console.log("No possible combinations: EIGHT")
         }
         break;
+    // tables of six combinations
     case 12:
         if (tablesOfSix.length > 0){
             tables = tablesOfSix
         } else if (tablesOfFour.length >= 1 && tablesOfTwo.length >= 1){
-            for (var i = 0; i < tablesOfFour.length; i++){
-                for (var j = 0; j < tablesOfTwo.length; j++){
-                    combination = tablesOfFour[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineFourAndTwo(tablesOfFour, tablesOfTwo)
         } else if (tablesOfFour.length == 0 && tablesOfTwo.length >= 3) {
-            for (var i = 0; i < tablesOfTwo.length; i++){
-                for (var j = i+1; j < tablesOfTwo.length; j++){
-                    for (var k = j+1; k < tablesOfTwo.length; k++){
-                        combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k]
-                        tables.push(combination)
-                    }
-                }
-            }
+            tables = lib.combineTwoX3(tablesOfTwo)
         } else {
-            console.log("No possible combinations")
+            console.log("No possible combinations: SIX")
         }
         break;
+    // tables of four combinations
     case 6:
         if (tablesOfFour.length > 0){
             tables = tablesOfFour
         } else if (tablesOfTwo.length >= 2) {
-            for (var i = 0; i < tablesOfTwo.length; i++){
-                for (var j = i+1; j < tablesOfTwo.length; j++){
-                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineTwoX2(tablesOfTwo)
+        } else {
+            console.log("No possible combinations: FOUR")
         }
         break;
+    // tables of two
     default:
+        if (tablesOfTwo.length > 0){
+            tables = tablesOfTwo
+        } else {
+            console.log("No possible combinations for TWO")
+        }
         break;
     }
     console.log("available tables: " + tables)
     if (tables.length > 0){
         res.render('selectUserTables.ejs', { availableTables: tables });
-    // If there are no available tables
     } else {
-        // TODO: if registered user return to userForm
-        // TODO: return user to guestForm if guest
-
-        // redirect user back to beginning of reservation form
+        // No reservations, redirect user back to page 1 of reservation form
         res.redirect('/userForm');
     }
 })
@@ -588,7 +558,6 @@ app.get('/selectGuestTables', async (req, res) => {
     let initialReservation = await InitialReservation.findOne({ 
         username: "guest"
     }).sort({ _id: -1 })
-
     // set min_max based on number of guests
     min_max = lib.tableMinMax(initialReservation.num_guests)
 
@@ -620,89 +589,60 @@ app.get('/selectGuestTables', async (req, res) => {
     tablesOfTwo = lib.identifyTablesOfTwo(availableSingleTables)
 
     // combine tables
-    var combination = ""
     var tables = []
     switch(min_max[0]){
+    // tables of eight combinations
     case 17:
         if(tablesOfEight.length > 0){
             tables = tablesOfEight
         } else if (tablesOfFour.length >= 2){
-            tables = tablesOfFour.flatMap((v, i) => tablesOfFour.slice(i + 1).map( w => v + ' + ' + w ))
+            tables = lib.combineFourX2(tablesOfFour)
         } else if (tablesOfSix.length >= 1 && tablesOfTwo.length >= 1){
-            for (var i = 0; i < tablesOfSix.length; i++) {
-                for (var j = 0; j < tablesOfTwo.length; j++) {
-                    combination = tablesOfSix[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
-        } else if (tablesOfTwo.length >= 2 && tablesOfFour.length == 1) {
-            for (var i = 0; i < tablesOfTwo.length; i++) {
-                for (var j = i + 1; j < tablesOfTwo.length; j++){
-                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfFour[0]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineSixAndTwo(tablesOfSix, tablesOfTwo)
+        } else if (tablesOfFour.length == 1 && tablesOfTwo.length >= 2) {
+            tables = lib.combineFourAndTwoX2(tablesOfFour, tablesOfTwo)
         } else if (tablesOfTwo.length >= 4) {
-            if (tablesOfTwo.length == 4){
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
-            } else {
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-                tables.push(tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
-            }
+            tables = lib.combineTwoX4(tablesOfTwo)
         } else {
-            console.log("No possible combinations")
+            console.log("No possible combinations: EIGHT")
         }
         break;
+    // tables of six combinations
     case 12:
         if (tablesOfSix.length > 0){
             tables = tablesOfSix
         } else if (tablesOfFour.length >= 1 && tablesOfTwo.length >= 1){
-            for (var i = 0; i < tablesOfFour.length; i++){
-                for (var j = 0; j < tablesOfTwo.length; j++){
-                    combination = tablesOfFour[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineFourAndTwo(tablesOfFour, tablesOfTwo)
         } else if (tablesOfFour.length == 0 && tablesOfTwo.length >= 3) {
-            for (var i = 0; i < tablesOfTwo.length; i++){
-                for (var j = i+1; j < tablesOfTwo.length; j++){
-                    for (var k = j+1; k < tablesOfTwo.length; k++){
-                        combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k]
-                        tables.push(combination)
-                    }
-                }
-            }
+            tables = lib.combineTwoX3(tablesOfTwo)
         } else {
-            console.log("No possible combinations")
+            console.log("No possible combinations: SIX")
         }
         break;
+    // tables of four combinations
     case 6:
         if (tablesOfFour.length > 0){
             tables = tablesOfFour
         } else if (tablesOfTwo.length >= 2) {
-            for (var i = 0; i < tablesOfTwo.length; i++){
-                for (var j = i+1; j < tablesOfTwo.length; j++){
-                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j]
-                    tables.push(combination)
-                }
-            }
+            tables = lib.combineTwoX2(tablesOfTwo)
+        } else {
+            console.log("No possible combinations: FOUR")
         }
         break;
+    // tables of two
     default:
+        if (tablesOfTwo.length > 0){
+            tables = tablesOfTwo
+        } else {
+            console.log("No possible combinations for TWO")
+        }
         break;
     }
     console.log("available tables: " + tables)
     if (tables.length > 0){
         res.render('selectGuestTables.ejs', { availableTables: tables });
-    // If there are no available tables
     } else {
-        // TODO: if registered user return to userForm
-        // TODO: return user to guestForm if guest
-
-        // redirect user back to beginning of reservation form
+        // No reservations, redirect user back to page 1 of reservation form
         res.redirect('/guestForm');
     }
 })

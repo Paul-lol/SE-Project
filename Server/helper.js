@@ -188,6 +188,77 @@ function identifyTablesOfTwo(tables){
     return arr
 }
 
+var combination = ""
+function combineSixAndTwo(tablesOfSix, tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfSix.length; i++) {
+        for (var j = 0; j < tablesOfTwo.length; j++) {
+            combination = tablesOfSix[i] + " + " + tablesOfTwo[j]
+            tables.push(combination)
+        }
+    }
+    return tables
+}
+function combineFourAndTwoX2(tablesOfFour, tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfTwo.length; i++) {
+        for (var j = i + 1; j < tablesOfTwo.length; j++){
+            combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfFour[0]
+            tables.push(combination)
+        }
+    }
+    return tables
+}
+function combineTwoX4(tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfTwo.length; i++) {
+        for (var j = i + 1; j < tablesOfTwo.length; ++j) {
+            for (var k = j + 1; k < tablesOfTwo.length; k++) {
+                for (var l = k + 1; l < tablesOfTwo.length; l++) {
+                    tables.push(tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k] + " + " + tablesOfTwo[l])
+                }
+            }
+        }
+    }
+    return tables
+}
+function combineFourAndTwo(tablesOfFour, tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfFour.length; i++){
+        for (var j = 0; j < tablesOfTwo.length; j++){
+            combination = tablesOfFour[i] + " + " + tablesOfTwo[j]
+            tables.push(combination)
+        }
+    }
+    return tables
+}
+function combineTwoX3(tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfTwo.length; i++){
+        for (var j = i + 1; j < tablesOfTwo.length; j++){
+            for (var k = j + 1; k < tablesOfTwo.length; k++){
+                combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k]
+                tables.push(combination)
+            }
+        }
+    }
+    return tables
+}
+function combineTwoX2(tablesOfTwo){
+    var tables = []
+    for (var i = 0; i < tablesOfTwo.length; i++){
+        for (var j = i + 1; j < tablesOfTwo.length; j++){
+            combination = tablesOfTwo[i] + " + " + tablesOfTwo[j]
+            tables.push(combination)
+        }
+    }
+    return tables
+}
+function combineFourX2(tablesOfFour){
+    var tables = []
+    tables = tablesOfFour.flatMap((v, i) => tablesOfFour.slice(i + 1).map( w => v + ' + ' + w ))
+    return tables
+}
 
 
 module.exports = {
@@ -203,5 +274,12 @@ module.exports = {
     identifyTablesOfEight,
     identifyTablesOfSix,
     identifyTablesOfFour,
-    identifyTablesOfTwo
+    identifyTablesOfTwo,
+    combineSixAndTwo,
+    combineFourAndTwoX2,
+    combineTwoX4,
+    combineFourAndTwo,
+    combineTwoX3,
+    combineTwoX2,
+    combineFourX2
 };
