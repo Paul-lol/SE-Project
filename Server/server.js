@@ -60,6 +60,7 @@ const PastaPoint = mongoose.model("PastaPoint", pastaPointSchema);
 const InitialReservation = mongoose.model("InitialReservation", initialReservationSchema);
 const HoldFee = mongoose.model("HoldFee", holdFeeSchema)
 
+const singleTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
 const users = []
 let userInfo = {
     name: '',
@@ -75,15 +76,6 @@ let userInfo = {
     state_bill: '',
     preferred_payment: 'Cash'
 };
-let initReservation = {
-    name: '',
-    phone_num: '',
-    email: '',
-    date: '01-01-2021',
-    time: '00:00',
-    num_guests: '0'
-}
-const singleTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
