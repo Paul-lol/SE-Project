@@ -83,6 +83,7 @@ let initReservation = {
     time: '00:00',
     num_guests: '0'
 }
+const singleTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -385,11 +386,9 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         username: req.user.username,
         didFinalize: false
     })
-
-    console.log("\nInitial Reservation: ")
-    console.log(initialReservation)
+    // console.log("\nInitial Reservation: ")
+    // console.log(initialReservation)
     await initialReservation.save();
-
     reservationMessage = ""
 
     res.redirect('/selectUserTables');
@@ -400,200 +399,136 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
 // SELECT USER TABLES
 app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
     if(req.user.new_user){
-        res.redirect('/editProfile')
-    } else {
-        var min_max = []
-        var availableTables = []
-        await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 }).then(async(startReservation) => {
-            console.log("Initial Reservation Information: ")
-            console.log(startReservation)
-            initReservation = {
-                name: startReservation.name,
-                phone_num: startReservation.phone_num,
-                date: startReservation.date,
-                time: startReservation.time,
-                num_guests: startReservation.num_guests
+        res.redirect('/userForm')
+    }
+    var min_max = [], usedSingles = [], usedCombinations = [], usedTables = [], availableSingleTables = []
+    var tablesOfEight = [], tablesOfSix = [], tablesOfFour = [], tablesOfTwo = []
+
+    // find initial reservation
+    let initialReservation = await InitialReservation.findOne({ 
+        username: req.user.username
+    }).sort({ _id: -1 })
+
+    // set min_max based on number of guests
+    min_max = lib.tableMinMax(initialReservation.num_guests)
+
+    // query Reservations for single table reservations
+    let singleReservations = await Reservation.find({ 
+        date: initialReservation.date, 
+        time: initialReservation.time, 
+        table_num: { $in: singleTables }}, 
+        'table_num')
+    usedSingles = lib.identifyUsedSingleTables(singleReservations)
+
+    // query Reservations for combined table reservations
+    let combinedReservations = await Reservation.find({ 
+        date: initialReservation.date, 
+        time: initialReservation.time, 
+        table_num: { $nin: singleTables }}, 
+        'table_num')
+    usedCombinations = lib.identifyUsedCombinedTables(combinedReservations)
+
+    // combine usedSingles and usedCombinations
+    usedTables = usedSingles.concat(usedCombinations);
+    // get available single tables
+    availableSingleTables = (singleTables.filter(x => !usedTables.includes(x)));
+
+    // separate single tables by capacity
+    tablesOfEight = lib.identifyTablesOfEight(availableSingleTables)
+    tablesOfSix = lib.identifyTablesOfSix(availableSingleTables)
+    tablesOfFour = lib.identifyTablesOfFour(availableSingleTables)
+    tablesOfTwo = lib.identifyTablesOfTwo(availableSingleTables)
+
+    // combine tables
+    var combination = ""
+    var tables = []
+    switch(min_max[0]){
+    case 17:
+        if(tablesOfEight.length > 0){
+            tables = tablesOfEight
+        } else if (tablesOfFour.length >= 2){
+            tables = tablesOfFour.flatMap((v, i) => tablesOfFour.slice(i + 1).map( w => v + ' + ' + w ))
+        } else if (tablesOfSix.length >= 1 && tablesOfTwo.length >= 1){
+            for (var i = 0; i < tablesOfSix.length; i++) {
+                for (var j = 0; j < tablesOfTwo.length; j++) {
+                    combination = tablesOfSix[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
+                }
             }
-            min_max = lib.tableMinMax(initReservation.num_guests)
-            // console.log(min_max)
-            // find reservations within table_num range on same date and time
-            await Reservation.find({ date: initReservation.date, time: initReservation.time}).then(async (results) => {
-                // console.log("Reservations: " + results)
-                availableTables = lib.identifyAvailableSingleTables(results, min_max)
-                // console.log("Available tables:\n" + availableTables)
-                // if there are available non-combined tables
-                if (availableTables.length > 0) {
-
-                // ELSE, COMBINE TABLES
-                } else {
-                    switch (min_max[0]){
-                        // combinations of 8
-                        case 17:
-                            var tables = []
-                            var tableOfFour = 0
-                            var combination = ""
-                            // find tables of 4
-                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
-                                ).then(async (reservedTablesOfFour) => {
-                                var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-                                // console.log("availableTablesOfFour: " + availableTablesOfFour)
-
-                                if (availableTablesOfFour.length == 1){
-                                    tableOfFour = availableTablesOfFour[0];
-                                }
-                                if (availableTablesOfFour.length >= 2){
-                                    tables = availableTablesOfFour.flatMap(
-                                        (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
-                                    );
-                                    // console.log("4Table + 4Table: " + result)
-                                    availableTables = tables
-
-                                } else if (availableTablesOfFour.length == 0 || availableTablesOfFour.length == 1){
-
-                                    // find tables of 6 VVV
-                                    await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["12", "13", "14", "15", "16"]}}).then(async (reservedTablesOfSix) => {
-                                        var availableTablesOfSix = lib.identifyAvailableSingleTables(reservedTablesOfSix, [12, 16])
-                                        // console.log("Tables of 6: " + availableTablesOfSix)
-
-                                        // find tables of 2  VVV
-                                        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                                            var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-                                            // console.log("Tables of 2: " + availableTablesOfTwo)
-
-                                            // if availableTablesOfSix >= 1, combine table of 6 + 2
-                                            if (availableTablesOfSix.length >= 1){
-                                                for (var i = 0; i < availableTablesOfSix.length; i++) {
-                                                    for (var j = 0; j < availableTablesOfTwo.length; j++) {
-                                                        combination = availableTablesOfSix[i] + " + " + availableTablesOfTwo[j]
-                                                        tables.push(combination)
-                                                    }
-                                                }
-                                                // console.log("Table6 + Table2: " + tables)
-                                                availableTables = tables
-
-                                            // else if availableTablesOfTwo.length >= 2 AND availableTablesOfFour.length == 1, combine 2 + 2 + 4
-                                            } else if (availableTablesOfTwo.length >= 2 && availableTablesOfFour.length == 1) {
-                                                for (var i = 0; i < availableTablesOfTwo.length; i++) {
-                                                    for (var j = i; j < availableTablesOfTwo.length; j++){
-                                                        if (availableTablesOfTwo[i] != availableTablesOfTwo[j]){
-                                                            combination = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + tableOfFour
-                                                            tables.push(combination)
-                                                        }
-                                                    }
-                                                }
-                                                // console.log("Table2 + Table2 + Table4: " + tables)
-                                                availableTables = tables
-
-                                            // else if availableTablesOfTwo.length() >= 4, combine 2 + 2 + 2 + 2
-                                            } else if (availableTablesOfTwo.length >= 4) {
-                                                if (availableTablesOfTwo.length == 4){
-                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
-                                                } else {
-
-                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
-                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[4])
-                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                                    tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                                    tables.push(availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                                }
-                                                // console.log("T2 + T2 + T2 + T2: " + tables)
-                                                availableTables = tables
-
-                                            } else {
-                                                console.log("No possible combinations")
-                                            }
-                                            // else, no combinations left, return user to page 1 to select different reservation
-                                        })
-                                    })
-                                }
-                            })
-                            break;
-                        // combinations of 6
-                        case 12:
-                            var tables = []
-                            var combination = ""
-                            // find tables of 4
-                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
-                                ).then(async (reservedTablesOfFour) => {
-                                var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-                                
-                                // find tables of 2
-                                await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                                    var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-                                    
-                                    // table combinations 4 + 2
-                                    if (availableTablesOfFour.length >= 1 && availableTablesOfTwo.length >= 1){
-                                        for (var i = 0; i < availableTablesOfFour.length; i++){
-                                            for (var j = 0; j < availableTablesOfTwo.length; j++){
-                                                combinations = availableTablesOfFour[i] + " + " + availableTablesOfTwo[j]
-                                                tables.push(combinations)
-                                            }
-                                        }
-                                        availableTables = tables
-                                    
-                                    // combine tables of 2 + 2 + 2
-                                    } else if (availableTablesOfFour.length == 0 && availableTablesOfTwo.length >= 3) {
-                                        for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                            for (var j = i+1; j < availableTablesOfTwo.length; j++){
-                                                for (var k = j+1; k < availableTablesOfTwo.length; k++){
-                                                    combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + availableTablesOfTwo[k]
-                                                    tables.push(combinations)
-                                                }
-                                            }
-                                        }
-                                        availableTables = tables
-                                        console.log(availableTables)
-
-                                    // no combinations left
-                                    } else {
-                                        console.log("No possible combinations")
-                                    }
-                                })
-                            })
-                            break;
-                        // combinations of 4
-                        case 6:
-                            var tables = []
-                            var combination = ""
-                            // find tables of two
-                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                                var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-
-                                // combinations 2 + 2
-                                if (availableTablesOfTwo.length >= 2) {
-                                    for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                        for (var j = i+1; j < availableTablesOfTwo.length; j++){
-                                            combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j]
-                                            tables.push(combinations)
-                                        }
-                                    }
-                                    availableTables = tables
-                                    console.log(availableTables)
-                                }
-                            })
-                            break;
-                        default:
-                            console.log("ERROR")
+        } else if (tablesOfTwo.length >= 2 && tablesOfFour.length == 1) {
+            for (var i = 0; i < tablesOfTwo.length; i++) {
+                for (var j = i + 1; j < tablesOfTwo.length; j++){
+                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfFour[0]
+                    tables.push(combination)
+                }
+            }
+        } else if (tablesOfTwo.length >= 4) {
+            if (tablesOfTwo.length == 4){
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
+            } else {
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+            }
+        } else {
+            console.log("No possible combinations")
+        }
+        break;
+    case 12:
+        if (tablesOfSix.length > 0){
+            tables = tablesOfSix
+        } else if (tablesOfFour.length >= 1 && tablesOfTwo.length >= 1){
+            for (var i = 0; i < tablesOfFour.length; i++){
+                for (var j = 0; j < tablesOfTwo.length; j++){
+                    combination = tablesOfFour[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
+                }
+            }
+        } else if (tablesOfFour.length == 0 && tablesOfTwo.length >= 3) {
+            for (var i = 0; i < tablesOfTwo.length; i++){
+                for (var j = i+1; j < tablesOfTwo.length; j++){
+                    for (var k = j+1; k < tablesOfTwo.length; k++){
+                        combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k]
+                        tables.push(combination)
                     }
                 }
-                if (availableTables.length > 0){
-                    res.render('selectUserTables.ejs', { availableTables: availableTables });
-
-                // If there are no available tables
-                } else {
-                    // TODO: if registered user return to userForm
-                    // TODO: return user to guestForm if guest
-
-                    // redirect user back to beginning of reservation form
-                    res.redirect('/userForm');
+            }
+        } else {
+            console.log("No possible combinations")
+        }
+        break;
+    case 6:
+        if (tablesOfFour.length > 0){
+            tables = tablesOfFour
+        } else if (tablesOfTwo.length >= 2) {
+            for (var i = 0; i < tablesOfTwo.length; i++){
+                for (var j = i+1; j < tablesOfTwo.length; j++){
+                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
                 }
-            })
-        })
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    console.log("available tables: " + tables)
+    if (tables.length > 0){
+        res.render('selectUserTables.ejs', { availableTables: tables });
+    // If there are no available tables
+    } else {
+        // TODO: if registered user return to userForm
+        // TODO: return user to guestForm if guest
+
+        // redirect user back to beginning of reservation form
+        res.redirect('/userForm');
     }
 })
 app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
     await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 }).then(async(initialReservation) => {
-        console.log(initialReservation);
+        console.log("Initial Reservation: \n" + initialReservation);
         const reservation = new Reservation({
             name: initialReservation.name,
             phone_num: initialReservation.phone_num,
@@ -604,14 +539,14 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
             username: req.user.username,
             table_num: req.body.tables + ""
         })
-        console.log(req.body.tables)
+        // console.log(req.body.tables)
         reservation.save();
         console.log(reservation)
         await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
             // console.log(info)
             var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
             const prevPastaPoints = info.pasta_points
-            const updatePoints = await PastaPoint.updateOne({ username: req.user.username }, {
+            await PastaPoint.updateOne({ username: req.user.username }, {
                 username: req.user.username,
                 pasta_points: prevPastaPoints + randomNum
             });
@@ -628,11 +563,11 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         // });
 
         // TODO: change initial reservation did finalize to true
-        const updateDidFinalizeFlag = await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+        await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
             didFinalize: true
         });
         // clean up initial reservation
-        const deleteInitialReservation = await InitialReservation.deleteOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+        await InitialReservation.deleteOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
         
         const highTraffic = lib.isHighTraffic(reservation.date);
         if (highTraffic) {
@@ -646,197 +581,134 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
 
 //SELECT GUEST TABLES
 app.get('/selectGuestTables', async (req, res) => {
-    var min_max = []
-    var availableTables = []
-    await InitialReservation.findOne({ username: 'guest'}).sort({ _id: -1 }).then(async(startReservation) => {
-        console.log("Initial Reservation Information: ")
-        console.log(startReservation)
-        initReservation = {
-            name: startReservation.name,
-            phone_num: startReservation.phone_num,
-            date: startReservation.date,
-            time: startReservation.time,
-            num_guests: startReservation.num_guests
-        }
-        min_max = lib.tableMinMax(initReservation.num_guests)
-        // console.log(min_max)
-        // find reservations within table_num range on same date and time
-        await Reservation.find({ date: initReservation.date, time: initReservation.time}).then(async (results) => {
-            // console.log("Reservations: " + results)
-            availableTables = lib.identifyAvailableSingleTables(results, min_max)
-            // console.log("Available tables:\n" + availableTables)
-            // if there are available non-combined tables
-            if (availableTables.length > 0) {
+    var min_max = [], usedSingles = [], usedCombinations = [], usedTables = [], availableSingleTables = []
+    var tablesOfEight = [], tablesOfSix = [], tablesOfFour = [], tablesOfTwo = []
 
-            // ELSE, COMBINE TABLES
-            } else {
-                switch (min_max[0]){
-                    // combinations of 8
-                    case 17:
-                        var tables = []
-                        var tableOfFour = 0
-                        var combination = ""
-                        // find tables of 4
-                        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
-                            ).then(async (reservedTablesOfFour) => {
-                            var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-                            // console.log("availableTablesOfFour: " + availableTablesOfFour)
+    // find initial reservation
+    let initialReservation = await InitialReservation.findOne({ 
+        username: "guest"
+    }).sort({ _id: -1 })
 
-                            if (availableTablesOfFour.length == 1){
-                                tableOfFour = availableTablesOfFour[0];
-                            }
-                            if (availableTablesOfFour.length >= 2){
-                                tables = availableTablesOfFour.flatMap(
-                                    (v, i) => availableTablesOfFour.slice(i + 1).map( w => v + ' + ' + w )
-                                );
-                                // console.log("4Table + 4Table: " + result)
-                                availableTables = tables
+    // set min_max based on number of guests
+    min_max = lib.tableMinMax(initialReservation.num_guests)
 
-                            } else if (availableTablesOfFour.length == 0 || availableTablesOfFour.length == 1){
+    // query Reservations for single table reservations
+    let singleReservations = await Reservation.find({ 
+        date: initialReservation.date, 
+        time: initialReservation.time, 
+        table_num: { $in: singleTables }}, 
+        'table_num')
+    usedSingles = lib.identifyUsedSingleTables(singleReservations)
 
-                                // find tables of 6 VVV
-                                await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["12", "13", "14", "15", "16"]}}).then(async (reservedTablesOfSix) => {
-                                    var availableTablesOfSix = lib.identifyAvailableSingleTables(reservedTablesOfSix, [12, 16])
-                                    // console.log("Tables of 6: " + availableTablesOfSix)
+    // query Reservations for combined table reservations
+    let combinedReservations = await Reservation.find({ 
+        date: initialReservation.date, 
+        time: initialReservation.time, 
+        table_num: { $nin: singleTables }}, 
+        'table_num')
+    usedCombinations = lib.identifyUsedCombinedTables(combinedReservations)
 
-                                    // find tables of 2  VVV
-                                    await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                                        var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-                                        // console.log("Tables of 2: " + availableTablesOfTwo)
+    // combine usedSingles and usedCombinations
+    usedTables = usedSingles.concat(usedCombinations);
+    // get available single tables
+    availableSingleTables = (singleTables.filter(x => !usedTables.includes(x)));
 
-                                        // if availableTablesOfSix >= 1, combine table of 6 + 2
-                                        if (availableTablesOfSix.length >= 1){
-                                            for (var i = 0; i < availableTablesOfSix.length; i++) {
-                                                for (var j = 0; j < availableTablesOfTwo.length; j++) {
-                                                    combination = availableTablesOfSix[i] + " + " + availableTablesOfTwo[j]
-                                                    tables.push(combination)
-                                                }
-                                            }
-                                            // console.log("Table6 + Table2: " + tables)
-                                            availableTables = tables
+    // separate single tables by capacity
+    tablesOfEight = lib.identifyTablesOfEight(availableSingleTables)
+    tablesOfSix = lib.identifyTablesOfSix(availableSingleTables)
+    tablesOfFour = lib.identifyTablesOfFour(availableSingleTables)
+    tablesOfTwo = lib.identifyTablesOfTwo(availableSingleTables)
 
-                                        // else if availableTablesOfTwo.length >= 2 AND availableTablesOfFour.length == 1, combine 2 + 2 + 4
-                                        } else if (availableTablesOfTwo.length >= 2 && availableTablesOfFour.length == 1) {
-                                            for (var i = 0; i < availableTablesOfTwo.length; i++) {
-                                                for (var j = i; j < availableTablesOfTwo.length; j++){
-                                                    if (availableTablesOfTwo[i] != availableTablesOfTwo[j]){
-                                                        combination = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + tableOfFour
-                                                        tables.push(combination)
-                                                    }
-                                                }
-                                            }
-                                            // console.log("Table2 + Table2 + Table4: " + tables)
-                                            availableTables = tables
-
-                                        // else if availableTablesOfTwo.length() >= 4, combine 2 + 2 + 2 + 2
-                                        } else if (availableTablesOfTwo.length >= 4) {
-                                            if (availableTablesOfTwo.length == 4){
-                                                tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
-                                            } else {
-
-                                                tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3])
-                                                tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[4])
-                                                tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                                tables.push(availableTablesOfTwo[0] + " + " + availableTablesOfTwo[1] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                                tables.push(availableTablesOfTwo[1] + " + " + availableTablesOfTwo[2] + " + " + availableTablesOfTwo[3] + " + " + availableTablesOfTwo[4])
-                                            }
-                                            // console.log("T2 + T2 + T2 + T2: " + tables)
-                                            availableTables = tables
-
-                                        } else {
-                                            console.log("No possible combinations")
-                                        }
-                                        // else, no combinations left, return user to page 1 to select different reservation
-                                    })
-                                })
-                            }
-                        })
-                        break;
-                    // combinations of 6
-                    case 12:
-                        var tables = []
-                        var combination = ""
-                        // find tables of 4
-                        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["6", "7", "8", "9", "10", "11"]}}
-                            ).then(async (reservedTablesOfFour) => {
-                            var availableTablesOfFour = lib.identifyAvailableSingleTables(reservedTablesOfFour, [6, 11]);
-                            
-                            // find tables of 2
-                            await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                                var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-                                
-                                // table combinations 4 + 2
-                                if (availableTablesOfFour.length >= 1 && availableTablesOfTwo.length >= 1){
-                                    for (var i = 0; i < availableTablesOfFour.length; i++){
-                                        for (var j = 0; j < availableTablesOfTwo.length; j++){
-                                            combinations = availableTablesOfFour[i] + " + " + availableTablesOfTwo[j]
-                                            tables.push(combinations)
-                                        }
-                                    }
-                                    availableTables = tables
-                                
-                                // combine tables of 2 + 2 + 2
-                                } else if (availableTablesOfFour.length == 0 && availableTablesOfTwo.length >= 3) {
-                                    for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                        for (var j = i+1; j < availableTablesOfTwo.length; j++){
-                                            for (var k = j+1; k < availableTablesOfTwo.length; k++){
-                                                combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j] + " + " + availableTablesOfTwo[k]
-                                                tables.push(combinations)
-                                            }
-                                        }
-                                    }
-                                    availableTables = tables
-                                    console.log(availableTables)
-
-                                // no combinations left
-                                } else {
-                                    console.log("No possible combinations")
-                                }
-                            })
-                        })
-                        break;
-                    // combinations of 4
-                    case 6:
-                        var tables = []
-                        var combination = ""
-                        // find tables of two
-                        await Reservation.find({ date: initReservation.date, time: initReservation.time, table_num: { $in: ["1", "2", "3", "4", "5"]}}).then(async (reservedTablesOfTwo) => {
-                            var availableTablesOfTwo = lib.identifyAvailableSingleTables(reservedTablesOfTwo, [1, 5])
-
-                            // combinations 2 + 2
-                            if (availableTablesOfTwo.length >= 2) {
-                                for (var i = 0; i < availableTablesOfTwo.length; i++){
-                                    for (var j = i+1; j < availableTablesOfTwo.length; j++){
-                                        combinations = availableTablesOfTwo[i] + " + " + availableTablesOfTwo[j]
-                                        tables.push(combinations)
-                                    }
-                                }
-                                availableTables = tables
-                                console.log(availableTables)
-                            }
-                        })
-                        break;
-                    default:
-                        console.log("ERROR")
+    // combine tables
+    var combination = ""
+    var tables = []
+    switch(min_max[0]){
+    case 17:
+        if(tablesOfEight.length > 0){
+            tables = tablesOfEight
+        } else if (tablesOfFour.length >= 2){
+            tables = tablesOfFour.flatMap((v, i) => tablesOfFour.slice(i + 1).map( w => v + ' + ' + w ))
+        } else if (tablesOfSix.length >= 1 && tablesOfTwo.length >= 1){
+            for (var i = 0; i < tablesOfSix.length; i++) {
+                for (var j = 0; j < tablesOfTwo.length; j++) {
+                    combination = tablesOfSix[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
                 }
             }
-            if (availableTables.length > 0){
-                res.render('selectGuestTables.ejs', { availableTables: availableTables });
-
-            // If there are no available tables
-            } else {
-                // TODO: if registered user return to userForm
-                // TODO: return user to guestForm if guest
-
-                // redirect user back to beginning of reservation form
-                res.redirect('/guestForm');
+        } else if (tablesOfTwo.length >= 2 && tablesOfFour.length == 1) {
+            for (var i = 0; i < tablesOfTwo.length; i++) {
+                for (var j = i + 1; j < tablesOfTwo.length; j++){
+                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfFour[0]
+                    tables.push(combination)
+                }
             }
-        })
-    })
+        } else if (tablesOfTwo.length >= 4) {
+            if (tablesOfTwo.length == 4){
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
+            } else {
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[0] + " + " + tablesOfTwo[1] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+                tables.push(tablesOfTwo[1] + " + " + tablesOfTwo[2] + " + " + tablesOfTwo[3] + " + " + tablesOfTwo[4])
+            }
+        } else {
+            console.log("No possible combinations")
+        }
+        break;
+    case 12:
+        if (tablesOfSix.length > 0){
+            tables = tablesOfSix
+        } else if (tablesOfFour.length >= 1 && tablesOfTwo.length >= 1){
+            for (var i = 0; i < tablesOfFour.length; i++){
+                for (var j = 0; j < tablesOfTwo.length; j++){
+                    combination = tablesOfFour[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
+                }
+            }
+        } else if (tablesOfFour.length == 0 && tablesOfTwo.length >= 3) {
+            for (var i = 0; i < tablesOfTwo.length; i++){
+                for (var j = i+1; j < tablesOfTwo.length; j++){
+                    for (var k = j+1; k < tablesOfTwo.length; k++){
+                        combination = tablesOfTwo[i] + " + " + tablesOfTwo[j] + " + " + tablesOfTwo[k]
+                        tables.push(combination)
+                    }
+                }
+            }
+        } else {
+            console.log("No possible combinations")
+        }
+        break;
+    case 6:
+        if (tablesOfFour.length > 0){
+            tables = tablesOfFour
+        } else if (tablesOfTwo.length >= 2) {
+            for (var i = 0; i < tablesOfTwo.length; i++){
+                for (var j = i+1; j < tablesOfTwo.length; j++){
+                    combination = tablesOfTwo[i] + " + " + tablesOfTwo[j]
+                    tables.push(combination)
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    console.log("available tables: " + tables)
+    if (tables.length > 0){
+        res.render('selectGuestTables.ejs', { availableTables: tables });
+    // If there are no available tables
+    } else {
+        // TODO: if registered user return to userForm
+        // TODO: return user to guestForm if guest
+
+        // redirect user back to beginning of reservation form
+        res.redirect('/guestForm');
+    }
 })
 app.post('/selectGuestTables', async (req, res) => {
-    await InitialReservation.findOne({ username: "guest" }).sort({ _id: -1 }).then(async(initialReservation) => {
-        console.log(initialReservation);
+    await InitialReservation.findOne({ username: 'guest'}).sort({ _id: -1 }).then(async(initialReservation) => {
+        console.log("Initial Reservation: \n" + initialReservation);
         const reservation = new Reservation({
             name: initialReservation.name,
             phone_num: initialReservation.phone_num,
@@ -845,18 +717,19 @@ app.post('/selectGuestTables', async (req, res) => {
             time: initialReservation.time,
             num_guests: initialReservation.num_guests,
             username: "guest",
-            table_num: req.body.tables
+            table_num: req.body.tables + ""
         })
+        // console.log(req.body.tables)
         reservation.save();
+        // console.log(reservation)
 
         // TODO: change initial reservation did finalize to true
-        const updateDidFinalizeFlag = await InitialReservation.updateOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+        await InitialReservation.updateOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
             didFinalize: true
         });
         // clean up initial reservation
-        const deleteInitialReservation = await InitialReservation.deleteOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+        await InitialReservation.deleteOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
         
-
         const highTraffic = lib.isHighTraffic(reservation.date);
         if (highTraffic) {
             res.redirect('/highTraffic');
@@ -1042,7 +915,34 @@ module.exports = {
     },
     server: app.listen(3000)
     // localhost:3000
-    // mongodb compass string:
+    // mongodb compass string: (change ***** to password)
     // mongodb+srv://SEAdmin:*****@se-cluster.yazhn.mongodb.net/SE_Project_Database?authSource=admin&replicaSet=atlas-skcewq-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
 }
 
+
+
+/* DO NOT DELETE THIS - tips & tricks for callbacks
+
+
+// FIRST WAY 
+let promises = []
+await Reservation.find({ time: "10:00", table_num: { $nin: singleTables }}, 'table_num').then((results) => {
+    promises.push(results)
+})
+await Reservation.find({ time: "10:00", table_num: { $in: singleTables }}, 'table_num').then((results) => {
+    promises.push(results)
+})
+
+Promise.all(promises).then(([a, b]) => {
+    console.log("a:" + a)
+    console.log("b:" + b)
+})
+
+// SECOND WAY
+let a = await Reservation.find({ time: "10:00", table_num: { $nin: singleTables }}, 'table_num')
+let b = await Reservation.find({ time: "10:00", table_num: { $in: singleTables }}, 'table_num')
+
+console.log("a: " + a + "\nb: " + b)
+
+
+*/

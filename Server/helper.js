@@ -113,52 +113,98 @@ function tableMinMax(numGuests){
     }
 }
 
-var tablesOfTwo = [1, 2, 3, 4, 5]
-var tablesOfFour = [6, 7, 8, 9, 10, 11]
-var tablesOfSix = [12, 13, 14, 15, 16]
-var tablesOfEight = [17, 18, 19, 20]
-// parses through the results object array and returns array of available tables
-function identifyAvailableSingleTables(results, min_max){
-    var r = results
-    // console.log("helper: results: " + results)
-    var arr = []
-    // return all tables as available
-    if (r.length == 0){
-        var x = min_max[0]
-        var y = min_max[1]
-        while(x <= y) {
-            arr.push(x)
-            x += 1
+function identifyUsedCombinedTables(reservations){
+    var r = reservations
+    var usedTables = [], tempArr = []
+    var s = ""
+
+    for (var i = 0; i < r.length; i++){
+        // remove whitespace
+        s = (r[i].table_num).replace(/\s+/g, '');
+        // split tables separated by '+' to array
+        tempArr = s.split("+")
+        // add tables to usedTables array
+        for (var j = 0; j < tempArr.length; j++){
+            usedTables.push("" + tempArr[j])
         }
-        return arr
-    } else {
-        var tables = []
-        switch (min_max[0]){
-            case 1:
-                tables = tablesOfTwo
-                break;
-            case 6:
-                tables = tablesOfFour
-                break;
-            case 12:
-                tables = tablesOfSix
-                break;
-            case 17:
-                tables = tablesOfEight
-                break;
-            default:
-                console.log("No matching tables")
-                return arr
-        }
-        for (var i = 0; i < tables.length; i++){
-            let obj = results.find(x => parseInt(x.table_num) === tables[i])
-            // console.log("DEBUG: " + i)
-            if (!obj){
-                arr.push(tables[i])
-            }
-        }
-        return arr
     }
+    return usedTables
 }
 
-module.exports = {getMinDate, parseDate, getFirstName, getLastName, isHighTraffic, getPreferredTable, tableMinMax, identifyAvailableSingleTables};
+function identifyUsedSingleTables(reservations){
+    var r = reservations
+    var usedTables = []
+
+    for (var i = 0; i < r.length; i++){
+        usedTables.push("" + r[i].table_num)
+    }
+    return usedTables
+}
+
+
+var allTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
+var str_tablesOfTwo = ["1", "2", "3", "4", "5"]
+var str_tablesOfFour = ["6", "7", "8", "9", "10", "11"]
+var str_tablesOfSix = ["12", "13", "14", "15", "16"]
+var str_tablesOfEight = ["17", "18", "19", "20"]
+
+// pass in array with all available tables, returns only tables of eight
+function identifyTablesOfEight(tables){
+    var arr = []
+    for (var i = 0; i < str_tablesOfEight.length; i++){
+        if (tables.includes(str_tablesOfEight[i])){
+            arr.push("" + str_tablesOfEight[i])
+        }
+    }
+    return arr
+}
+// pass in array with all available tables, returns only tables of six
+function identifyTablesOfSix(tables){
+    var arr = []
+    for (var i = 0; i < str_tablesOfSix.length; i++){
+        if (tables.includes(str_tablesOfSix[i])){
+            arr.push("" + str_tablesOfSix[i])
+        }
+    }
+    return arr
+}
+
+// pass in array with all available tables, returns only tables of four
+function identifyTablesOfFour(tables){
+    var arr = []
+    for (var i = 0; i < str_tablesOfFour.length; i++){
+        if (tables.includes(str_tablesOfFour[i])){
+            arr.push("" + str_tablesOfFour[i])
+        }
+    }
+    return arr
+}
+
+// pass in array with all available tables, returns only tables of two
+function identifyTablesOfTwo(tables){
+    var arr = []
+    for (var i = 0; i < str_tablesOfTwo.length; i++){
+        if (tables.includes(str_tablesOfTwo[i])){
+            arr.push("" + str_tablesOfTwo[i])
+        }
+    }
+    return arr
+}
+
+
+
+module.exports = {
+    getMinDate, 
+    parseDate, 
+    getFirstName, 
+    getLastName, 
+    isHighTraffic, 
+    getPreferredTable, 
+    tableMinMax, 
+    identifyUsedCombinedTables, 
+    identifyUsedSingleTables,
+    identifyTablesOfEight,
+    identifyTablesOfSix,
+    identifyTablesOfFour,
+    identifyTablesOfTwo
+};

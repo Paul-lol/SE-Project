@@ -41,7 +41,7 @@
 					</div>
 					<div class="form_group">
 						<label>Date</label>
-						<input id="date_id" type="date" name="date_res" min= "<%= min_date %>" onchange="resetDropdown()" placeholder="Select date for booking" required=true>
+						<input id="date_id" type="date" name="date_res" min= '<%= min_date %>'' onchange="resetDropdown()" placeholder="Select date for booking" required=true>
 					</div>
 					<div class="form_group">
 						<label>Time (Operating Hours: 10am - 10pm)</label>
@@ -123,7 +123,7 @@
 		// y.add(newOption, undefined)
 		newOption = new Option("00", "00")
 		y.add(newOption, undefined)
-		newOption = new Option(30, 30)
+		newOption = new Option("30", "30")
 		y.add(newOption, undefined)
 		updateMinHour()
 	}
@@ -154,7 +154,7 @@
 			}
 		}
 		// selectHourValue = 18
-		if (currentHour == selectHourValue && currentMinute <= 30) {
+		if (currentHour == selectHourValue && currentMinute <= 30 && currDate == min_date) {
 			y.remove(0)
 		}
 	}
