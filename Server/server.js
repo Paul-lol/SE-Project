@@ -800,9 +800,6 @@ module.exports = {
     checkAuth: function(){
         return checkAuthenticated;
     },
-    checkHist: function(){
-        return hist;
-    },
     checkUsername: function(){
         return users.inputUsername;
     },
