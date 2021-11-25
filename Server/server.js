@@ -76,6 +76,15 @@ let userInfo = {
     state_bill: '',
     preferred_payment: 'Cash'
 };
+let reservation = {
+    name: 'No Reservation Found',
+    phone_num: 'N/A',
+    email: 'N/A',
+    date: 'N/A',
+    time: 'N/A',
+    num_guests: 'N/A',
+    table_num: 'N/A',
+}
 
 app.use(express.static('public'));
 app.set('view-engine', 'ejs')
@@ -126,39 +135,36 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
-         users.push({  
+        users.push({  
             id: Date.now().toString(),
             inputUsername : req.body.inputUsername,
             inputPassword : hashedPassword
         })
-        await UserInfo.countDocuments({ username: req.body.inputUsername }).then((registeredCount) =>{
-            // console.log(registeredCount)
-            if (registeredCount > 0) {
+        const registeredCount = await UserInfo.countDocuments({ username: req.body.inputUsername })
+        if (registeredCount > 0) {
             console.log('Username already exists')
             // TODO: make register page display error if the username already exists
             res.redirect('/register');
-            } else {
-                const userInfo = new UserInfo ({
-                    username: req.body.inputUsername,
-                    password: hashedPassword,
-                    new_user: true
-                })
-                userInfo.save();
-                const emptyArr = new Array(20).fill(0);
-                const userTables = new Preference ({
-                    username: req.body.inputUsername,
-                    tables: emptyArr
-                })
-                userTables.save();
-                const userPoints = new PastaPoint({
-                    username: req.body.inputUsername,
-                    pasta_points: 0
-                })
-                userPoints.save();
-                console.log(userInfo);
-                res.redirect('/login')
-            }
-        })
+        } else {
+            // save new user info to db
+            await new UserInfo ({
+                username: req.body.inputUsername,
+                password: hashedPassword,
+                new_user: true
+            }).save()
+            // create and save preferences table
+            const emptyArr = new Array(20).fill(0);
+            await new Preference ({
+                username: req.body.inputUsername,
+                tables: emptyArr
+            }).save()
+            // create and save pasta points for new user
+            await new PastaPoint({
+                username: req.body.inputUsername,
+                pasta_points: 0
+            }).save()
+            res.redirect('/login')
+        }
     } catch(error) {
         console.error(error);
         res.redirect('/register')
@@ -173,39 +179,36 @@ app.get('/guestRegister', checkNotAuthenticated, (req, res) => {
 app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.inputPassword, 10) 
-        users.push({
+        users.push({  
             id: Date.now().toString(),
             inputUsername : req.body.inputUsername,
             inputPassword : hashedPassword
         })
-        await UserInfo.countDocuments({ username: req.body.inputUsername }).then((registeredCount) =>{
-            // console.log(registeredCount)
-            if (registeredCount > 0){
-                console.log('Username already exists')
-                // TODO: make guestRegister page display error if the username already exists
-                res.redirect('/guestRegister');
-            } else {
-                const userInfo = new UserInfo ({
-                    username: req.body.inputUsername,
-                    password: hashedPassword,
-                    new_user: true 
-                })
-                userInfo.save();
-                const emptyArr = new Array(20).fill(0);
-                const userTables = new Preference ({
-                    username: req.body.inputUsername,
-                    tables: emptyArr
-                })
-                userTables.save();
-                const userPoints = new PastaPoint({
-                    username: req.body.inputUsername,
-                    pasta_points: 0
-                })
-                userPoints.save();
-                console.log(userInfo);
-                res.redirect('/guestConfirmation')
-            }
-        })
+        const registeredCount = await UserInfo.countDocuments({ username: req.body.inputUsername })
+        if (registeredCount > 0) {
+            console.log('Username already exists')
+            // TODO: make register page display error if the username already exists
+            res.redirect('/register');
+        } else {
+            // save new user info to db
+            await new UserInfo ({
+                username: req.body.inputUsername,
+                password: hashedPassword,
+                new_user: true
+            }).save()
+            // create and save preferences table
+            const emptyArr = new Array(20).fill(0);
+            await new Preference ({
+                username: req.body.inputUsername,
+                tables: emptyArr
+            }).save()
+            // create and save pasta points for new user
+            await new PastaPoint({
+                username: req.body.inputUsername,
+                pasta_points: 0
+            }).save()
+            res.redirect('/guestConfirmation')
+        }
     } catch(error) {
         console.error(error);
         res.redirect('/guestRegister')
@@ -223,31 +226,32 @@ app.get('/profile', checkAuthenticated, async (req,res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
     } else {
+        // find profile info using username
         const filter = { username: req.user.username };
-        await User.findOne(filter).then(async (profileInfo) => {
-            let f_name = lib.getFirstName(profileInfo.name)
-            let l_name = lib.getLastName(profileInfo.name)
-            var information = {
-                first_name: f_name,
-                last_name: l_name,
-                mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
-                billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
-                city_mailing: profileInfo.city_mail,
-                city_billing: profileInfo.city_bill,
-                zip_mailing: profileInfo.zip_mail,
-                zip_billing: profileInfo.zip_bill,
-                state_mailing: profileInfo.state_mail,
-                state_billing: profileInfo.state_bill,
-                preferred_payment: profileInfo.preferred_payment,
-            }
-            await Preference.findOne(filter).then(async (info) => {
-                const tableArr = info.tables
-                const preferredTable = lib.getPreferredTable(tableArr);
-                await PastaPoint.findOne(filter).then((pointInfo) => {
-                    res.render('profile.ejs', { data: information, preferredTable: preferredTable + 1, points: Math.floor(pointInfo.pasta_points) })
-                })
-            });
-        })
+        const profileInfo = await User.findOne(filter)
+        const f_name = lib.getFirstName(profileInfo.name)
+        const l_name = lib.getLastName(profileInfo.name)
+        // create object with information
+        var information = {
+            first_name: f_name,
+            last_name: l_name,
+            mailing_address: profileInfo.mail_street1 + " " + profileInfo.mail_street2,
+            billing_address: profileInfo.bill_street1 + " " + profileInfo.bill_street2,
+            city_mailing: profileInfo.city_mail,
+            city_billing: profileInfo.city_bill,
+            zip_mailing: profileInfo.zip_mail,
+            zip_billing: profileInfo.zip_bill,
+            state_mailing: profileInfo.state_mail,
+            state_billing: profileInfo.state_bill,
+            preferred_payment: profileInfo.preferred_payment,
+        }
+        // find table preferences
+        const preference = await Preference.findOne(filter)
+        const preferredTable = lib.getPreferredTable(preference.tables);
+        // get pasta points
+        const points = await PastaPoint.findOne(filter)
+        // render view
+        res.render('profile.ejs', { data: information, preferredTable: preferredTable + 1, points: Math.floor(points.pasta_points)})
     }
 })
 
@@ -313,7 +317,7 @@ app.get('/guestForm', async (req, res) => {
     res.render('guestForm.ejs', { min_date: min_date });
 })
 app.post('/guestForm', async (req,res) => {
-    const initialReservation = new InitialReservation({
+    await new InitialReservation({
         name: req.body.name,
         phone_num: req.body.phone,
         email: req.body.email,
@@ -322,8 +326,7 @@ app.post('/guestForm', async (req,res) => {
         num_guests: req.body.guest,
         username: 'guest',
         didFinalize: false
-    })
-    await initialReservation.save();
+    }).save()
     res.redirect('/selectGuestTables');
 })
 
@@ -338,7 +341,7 @@ app.get('/userForm', checkAuthenticated, async (req, res) => {
     }
 })
 app.post('/userForm', checkAuthenticated, async (req,res) => {
-    const initialReservation = new InitialReservation({
+    await new InitialReservation({
         name: req.body.name,
         phone_num: req.body.phone,
         email: req.body.email,
@@ -347,8 +350,7 @@ app.post('/userForm', checkAuthenticated, async (req,res) => {
         num_guests: req.body.guest,
         username: req.user.username,
         didFinalize: false
-    })
-    await initialReservation.save();
+    }).save()
     res.redirect('/selectUserTables');
 })
 
@@ -446,67 +448,70 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
         }
         break;
     }
-    console.log("available tables: " + tables)
+    // if there are available seats
     if (tables.length > 0){
         res.render('selectUserTables.ejs', { availableTables: tables });
+    // No available reservations, redirect user back to page 1 of reservation form
     } else {
-        // No reservations, redirect user back to page 1 of reservation form
         res.redirect('/userForm');
     }
 })
 app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
-    await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 }).then(async(initialReservation) => {
-        console.log("Initial Reservation: \n" + initialReservation);
-        const reservation = new Reservation({
-            name: initialReservation.name,
-            phone_num: initialReservation.phone_num,
-            email: initialReservation.email,
-            date: initialReservation.date,
-            time: initialReservation.time,
-            num_guests: initialReservation.num_guests,
-            username: req.user.username,
-            table_num: req.body.tables + ""
-        })
-        // console.log(req.body.tables)
-        reservation.save();
-        console.log(reservation)
-        // update Pasta Points
-        await PastaPoint.findOne({ username: req.user.username }).then(async (info) => {
-            var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
-            const prevPastaPoints = info.pasta_points
-            await PastaPoint.updateOne({ username: req.user.username }, {
-                username: req.user.username,
-                pasta_points: prevPastaPoints + randomNum
-            });
-        });
-        // update preferred diner
-        await Preference.findOne({ username: req.user.username }).then(async (info) => {
-            var arr = info.tables, tables = []
-            arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
-            // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
-            tables = lib.parseTableNum(reservation.table_num)
-            // update arr[i - 1] += 1
-            for (var i = 0; i < tables.length; i++){
-                arr[tables[i]] += 1
-            }
-            await Preference.updateOne({ username: req.user.username }, {
-                username: req.body.username,
-                tables: arr
-            });
-        });
-        await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
-            didFinalize: true
-        });
-        // clean up initial reservation
-        await InitialReservation.deleteOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
-        
-        const highTraffic = lib.isHighTraffic(reservation.date);
-        if (highTraffic) {
-            res.redirect('/highTraffic');
-        } else {
-            res.redirect('/confirmation');
-        }
+    // find initial reservation
+    const initialReservation = await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 })
+    // create new reservation
+    const reservation = new Reservation({
+        name: initialReservation.name,
+        phone_num: initialReservation.phone_num,
+        email: initialReservation.email,
+        date: initialReservation.date,
+        time: initialReservation.time,
+        num_guests: initialReservation.num_guests,
+        username: req.user.username,
+        table_num: req.body.tables + ""
     })
+    // save reservation to db
+    reservation.save();
+
+    // update Pasta Points
+    const points = await PastaPoint.findOne({ username: req.user.username }, 'pasta_points')
+    var randomNum = Math.floor(Math.random() * (25 - 10) + 10)
+    const prevPastaPoints = points.pasta_points
+    await PastaPoint.updateOne({ username: req.user.username }, {
+        username: req.user.username,
+        pasta_points: prevPastaPoints + randomNum
+    });
+
+    // update preferred diner
+    await Preference.findOne({ username: req.user.username }).then(async (info) => {
+        var arr = info.tables, tables = []
+        arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
+        // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
+        tables = lib.parseTableNum(reservation.table_num)
+        // update arr[i - 1] += 1
+        for (var i = 0; i < tables.length; i++){
+            arr[tables[i]] += 1
+        }
+        await Preference.updateOne({ username: req.user.username }, {
+            username: req.body.username,
+            tables: arr
+        });
+    });
+
+    // update didFinalize flag
+    await InitialReservation.updateOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+        didFinalize: true
+    });
+    // delete initial reservation after finalizing
+    await InitialReservation.deleteOne({ username: req.user.username, date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+    
+    // highTraffic validations
+    const highTraffic = lib.isHighTraffic(reservation.date);
+    if (highTraffic) {
+        res.redirect('/highTraffic');
+    } else {
+        res.redirect('/confirmation');
+    }
 })
 
 
@@ -599,41 +604,45 @@ app.get('/selectGuestTables', async (req, res) => {
         }
         break;
     }
-    console.log("available tables: " + tables)
+    // if there are available seats
     if (tables.length > 0){
         res.render('selectGuestTables.ejs', { availableTables: tables });
+    // No available reservations, redirect guest back to page 1 of reservation form
     } else {
-        // No reservations, redirect user back to page 1 of reservation form
         res.redirect('/guestForm');
     }
 })
 app.post('/selectGuestTables', async (req, res) => {
-    await InitialReservation.findOne({ username: 'guest'}).sort({ _id: -1 }).then(async(initialReservation) => {
-        console.log("Initial Reservation: \n" + initialReservation);
-        const reservation = new Reservation({
-            name: initialReservation.name,
-            phone_num: initialReservation.phone_num,
-            email: initialReservation.email,
-            date: initialReservation.date,
-            time: initialReservation.time,
-            num_guests: initialReservation.num_guests,
-            username: "guest",
-            table_num: req.body.tables + ""
-        })
-        reservation.save();
-        await InitialReservation.updateOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
-            didFinalize: true
-        });
-        // clean up initial reservation
-        await InitialReservation.deleteOne({ username: 'guest', date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
-        
-        const highTraffic = lib.isHighTraffic(reservation.date);
-        if (highTraffic) {
-            res.redirect('/highTraffic');
-        } else {
-            res.redirect('/guestPreConfirm');
-        }
+    // find initial reservation
+    const initialReservation = await InitialReservation.findOne({ username: "guest"}).sort({ _id: -1 })
+    // create new reservation
+    const reservation = new Reservation({
+        name: initialReservation.name,
+        phone_num: initialReservation.phone_num,
+        email: initialReservation.email,
+        date: initialReservation.date,
+        time: initialReservation.time,
+        num_guests: initialReservation.num_guests,
+        username: "guest",
+        table_num: req.body.tables + ""
     })
+    // save reservation to db
+    reservation.save();
+
+    // update didFinalize flag
+    await InitialReservation.updateOne({ username: "guest", date: reservation.date, table_num: reservation.table_num, time: reservation.time }, {
+        didFinalize: true
+    });
+    // delete initial reservation after finalizing
+    await InitialReservation.deleteOne({ username: "guest", date: reservation.date, table_num: reservation.table_num, time: reservation.time, didFinalize: true })
+    
+    // highTraffic validations
+    const highTraffic = lib.isHighTraffic(reservation.date);
+    if (highTraffic) {
+        res.redirect('/highTraffic');
+    } else {
+        res.redirect('/guestPreConfirm');
+    }
 })
 
 
@@ -642,32 +651,31 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
     if(req.user.new_user){
         res.redirect('/editProfile')
     } else {
-        await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 }).then((lastReservation) => {
-            // console.log("\nLatest Reservation")
-            // console.log(lastReservation)
-            if(lastReservation == null){
-                reservation = {
-                    name: 'No Reservation Found',
-                    phone_num: 'N/A',
-                    email: 'N/A',
-                    date: 'N/A',
-                    time: 'N/A',
-                    num_guests: 'N/A',
-                    table_num: 'N/A',
-                }
-            } else {
-                const p_date = lib.parseDate(lastReservation.date);
-                reservation = {
-                    name: lastReservation.name,
-                    phone_num: lastReservation.phone_num,
-                    email: lastReservation.email,
-                    date: p_date,
-                    time: lastReservation.time,
-                    num_guests: lastReservation.num_guests,
-                    table_num: lastReservation.table_num
-                }
+        // find latest reservation by the user
+        const lastReservation = await Reservation.findOne({ username: req.user.username }).sort({ _id: -1 })
+        // if there is no reservation (a.k.a new user w/ no reservations yet)
+        if(lastReservation == null){
+            reservation = {
+                name: 'No Reservation Found',
+                phone_num: 'N/A',
+                email: 'N/A',
+                date: 'N/A',
+                time: 'N/A',
+                num_guests: 'N/A',
+                table_num: 'N/A',
             }
-        })
+        } else {
+            const p_date = lib.parseDate(lastReservation.date);
+            reservation = {
+                name: lastReservation.name,
+                phone_num: lastReservation.phone_num,
+                email: lastReservation.email,
+                date: p_date,
+                time: lastReservation.time,
+                num_guests: lastReservation.num_guests,
+                table_num: lastReservation.table_num
+            }
+        }
         res.render('confirmation.ejs', { data: reservation });
     }
 })
@@ -675,66 +683,62 @@ app.get('/confirmation', checkAuthenticated, async(req, res) => {
 
 // GUEST PRE-CONFIRMATION
 app.get('/guestPreConfirm', async(req, res) => {
-    // guest1234 
-    await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
-        console.log("\nLatest Reservation")
-        console.log(lastReservation)
-        if(lastReservation == null){
-            reservation = {
-                name: 'No Reservation Found',
-                phone_num: 'N/A',
-                email: 'N/A',
-                date: 'N/A',
-                time: 'N/A',
-                num_guests: 'N/A',
-                table_num: 'N/A',
-            }
-        } else {
-            const p_date = lib.parseDate(lastReservation.date);
-            reservation = {
-                name: lastReservation.name,
-                phone_num: lastReservation.phone_num,
-                email: lastReservation.email,
-                date: p_date,
-                time: lastReservation.time,
-                num_guests: lastReservation.num_guests,
-                table_num: lastReservation.table_num
-            }
+    // find latest reservation by the guest
+    const lastReservation = await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 })
+    // if there is no reservation (a.k.a new user w/ no reservations yet)
+    if(lastReservation == null){
+        reservation = {
+            name: 'No Reservation Found',
+            phone_num: 'N/A',
+            email: 'N/A',
+            date: 'N/A',
+            time: 'N/A',
+            num_guests: 'N/A',
+            table_num: 'N/A',
         }
-    })
+    } else {
+        const p_date = lib.parseDate(lastReservation.date);
+        reservation = {
+            name: lastReservation.name,
+            phone_num: lastReservation.phone_num,
+            email: lastReservation.email,
+            date: p_date,
+            time: lastReservation.time,
+            num_guests: lastReservation.num_guests,
+            table_num: lastReservation.table_num
+        }
+    }
     res.render('guestPreConfirm.ejs', { data: reservation });
 })
 
 
 //GUEST CONFIRMATION
 app.get('/guestConfirmation', async(req, res) => {
-    // guest1234 
-    await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 }).then((lastReservation) => {
-        console.log("\nLatest Reservation")
-        console.log(lastReservation)
-        if(lastReservation == null){
-            reservation = {
-                name: 'No Reservation Found',
-                phone_num: 'N/A',
-                email: 'N/A',
-                date: 'N/A',
-                time: 'N/A',
-                num_guests: 'N/A',
-                table_num: 'N/A',
-            }
-        } else {
-            const p_date = lib.parseDate(lastReservation.date);
-            reservation = {
-                name: lastReservation.name,
-                phone_num: lastReservation.phone_num,
-                email: lastReservation.email,
-                date: p_date,
-                time: lastReservation.time,
-                num_guests: lastReservation.num_guests,
-                table_num: lastReservation.table_num
-            }
+    // find latest reservation by guest
+    const lastReservation = await Reservation.findOne({ username: 'guest' }).sort({ _id: -1 })
+    // if there is no reservation (a.k.a new user w/ no reservations yet)
+    if(lastReservation == null){
+        reservation = {
+            name: 'No Reservation Found',
+            phone_num: 'N/A',
+            email: 'N/A',
+            date: 'N/A',
+            time: 'N/A',
+            num_guests: 'N/A',
+            table_num: 'N/A',
         }
-    })
+    } else {
+        const p_date = lib.parseDate(lastReservation.date);
+        reservation = {
+            name: lastReservation.name,
+            phone_num: lastReservation.phone_num,
+            email: lastReservation.email,
+            date: p_date,
+            time: lastReservation.time,
+            num_guests: lastReservation.num_guests,
+            table_num: lastReservation.table_num
+        }
+    }
     res.render('guestConfirmation.ejs', { data: reservation });
 })
 
@@ -755,15 +759,13 @@ app.get('/highTraffic', async (req, res) => {
 })
 app.post('/highTraffic', async (req, res) => {
     // save holdFee to db
-    const holdFee = new HoldFee({
+    await new HoldFee({
         card_name: req.body.card_name,
         card_num: req.body.card_number,
         expiry_date: req.body.set_month + "/" + req.body.set_year,
         security_code: req.body.security_code,
         zip: req.body.zip
-    })
-    holdFee.save()
-
+    }).save()
     if (isGuest) {
         isGuest = false
         res.redirect('/guestPreConfirm')
