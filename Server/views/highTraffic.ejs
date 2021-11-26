@@ -1,7 +1,7 @@
 <html lang="en">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <head>
-<title>Reservation Form</title>
+<title>High Traffic Form</title>
 <link rel="stylesheet" type="text/css" href="css/highTraffic.css"/>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <link rel="shortcut icon" href="css/pasta.png" />
@@ -19,7 +19,9 @@
 				<div class="left">
 					<div class="form_group">
 						<label>Name on card</label>
-						<input type="text" id="card_name" name="card_name" placeholder="John Doe" required>
+						<input type="text" id="card_name" name="card_name" pattern="[a-zA-Z'-'\s]*"
+						title="No numeric values and special characters allowed e.g, Raj Singh"
+						placeholder="John Doe" required>
 				    </div>
 				    <div class="form_group">
 						<label>Card Number</label>
@@ -32,7 +34,7 @@
 							<option value="01">01</option>
 						</select>
 						<select name="set_year" id="set_year" required>
-							<option value="2021">2021</option>
+							<option value="2022">2022</option>
 						</select>
 					</div>
 					<div class="form_group">
@@ -62,11 +64,6 @@
 			</div>
 		</div>
 	</div>
-	<footer class="footer">
-		<img class="img-rounded" width="50" height="50" src="css/pasta.png">
-		<center>All Rights Reserved (2021)</center>
-	</footer>
-
 </body>
 <script>
     // populates select objects with month and year for expiry date field
@@ -75,7 +72,6 @@
         var y = document.getElementById("set_year");
         var l = x.options.length - 1;
         var newOption = new Option(99, 99)
-
         for (let i = 2; i <= 9; i++){
             newOption = new Option(("0" + i), ("0" + i))
             x.add(newOption, undefined)
@@ -86,7 +82,7 @@
             x.add(newOption, undefined)
             // console.log(newOption)
         }
-        for (let i = 21; i <= 40; i++){
+        for (let i = 23; i <= 40; i++){
             newOption = new Option(("20" + i), ("20" + i))
             y.add(newOption, undefined)
             // console.log(newOption)
