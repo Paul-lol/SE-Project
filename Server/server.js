@@ -481,16 +481,17 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         username: req.user.username,
         pasta_points: prevPastaPoints + randomNum
     });
-
     // update preferred diner
     await Preference.findOne({ username: req.user.username }).then(async (info) => {
         var arr = info.tables, tables = []
         arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
         // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
         tables = lib.parseTableNum(reservation.table_num)
+        console.log(arr);
+        console.log(tables);
         // update arr[i - 1] += 1
         for (var i = 0; i < tables.length; i++){
-            arr[tables[i]] += 1
+            arr[tables[i]-1] += 1
         }
         await Preference.updateOne({ username: req.user.username }, {
             username: req.body.username,
