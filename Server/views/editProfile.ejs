@@ -26,7 +26,7 @@
      
 <div class="container">
   
-<form id="form" action="/editProfile" method="post"> 
+<form id="form" name="myForm" action="/editProfile" onsubmit="return showHideShipInfo()" method="post"> 
 <h2 class="form_head">User Profile</h2>
 <div class="form-group">
       <label for="full_name_id" class="control-label">Full Name</label>
@@ -140,15 +140,15 @@
         <hr class="my-4"> 
         
 
-        <div id="remove"> 
-  <h1> Billing Address </h1>
-<div class="form-group" >
+        <div id="remove" > 
+        <h1> Billing Address </h1>
+        <div class="billingAddress" id="billingAddress">
             <!-- Street 1 -->
             <label for="street1_id" class="control-label">Street Address 1</label>
             <input type="text" maxlength="100" title="No special characters allowed" class="form-control"
                 id="street1_id" autocomplete="on" name="bill_street1" 
                 placeholder="Street address, P.O. box, company name, c/o" 
-                pattern="[1234567890a-zA-Z'-'\s]*" required/>
+                pattern="[1234567890a-zA-Z'-'\s]*" />
         </div>
 
         <div class="form-group">
@@ -163,13 +163,13 @@
             <!-- City-->
             <label for="city_id" class="control-label">City</label>
             <input type="text" maxlength="100" pattern="[a-zA-Z ]+" title="Numeric values and special characters are not allowed"
-                class="form-control" id="city_id" autocomplete="on" name="bill_city" placeholder="Houston" required/>
+                class="form-control" id="city_id" autocomplete="on" name="bill_city" placeholder="Houston" />
         </div>
 
         <div class="form-group">
             <!-- State Button -->
             <label for="state_id" class="control-label">State</label>
-            <select style="color: black;" class="form-control" required name="bill_state">
+            <select style="color: black;" class="form-control" name="bill_state">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -229,7 +229,7 @@
             <label for="zip_id" class="form-check-label">Zip Code</label>
             <input type="text" pattern="\d*" minlength="5" maxlength="9" size=10
                 title="5 to 9 characters (Numerical characters only)" class="form-control" id="zip_id" autocomplete="on" name="bill_zip"
-                placeholder="#####" required />
+                placeholder="#####"  />
             <br>
         </div>
       </div> 
@@ -277,7 +277,28 @@
   function showHideShipInfo() {
     if(document.getElementById('sameAddress').checked) {
         document.getElementById('remove').style.display='none';
-    } else {
+    } 
+    else {
+      let w = document.forms["myForm"]["bill_street1"].value;
+      let x = document.forms["myForm"]["bill_city"].value;
+      let y = document.forms["myForm"]["bill_state"].value;
+      let z = document.forms["myForm"]["bill_zip"].value;
+      if(w == ""){
+        alert("Billing address 1 must be filled out");
+        return false;
+      }
+      else if(x == ""){
+        alert("Billing city must be filled out");
+        return false;
+      }
+      else if(y == ""){
+        alert("Billing state must be filled out");
+        return false;
+      }
+      else if(z == ""){
+        alert("Billing zip code must be filled out");
+        return false;
+      }
       document.getElementById('remove').style.display='block';
     }
   }
