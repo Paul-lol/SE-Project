@@ -24,41 +24,14 @@ mongoose.connect('mongodb+srv://SEAdmin:SEAdmin@se-cluster.yazhn.mongodb.net/SE_
     console.log('Connected to Database!');
 }).catch(err => console.log(err));
 
-// Preferred Diner/Table
-const preferredTablesSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    tables: [Number]
-});
-const pastaPointSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    pasta_points: Number
-});
-const initialReservationSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    phone_num: { type: String, required: true },
-    email: { type: String, required: true },
-    date: { type: Date, required: true },
-    time: { type: String, required: true },
-    num_guests: { type: Number, required: true },
-    username: { type: String, required: true },
-    didFinalize: { type: Boolean, required: true }
-});
-const holdFeeSchema = new mongoose.Schema({
-    card_name: { type: String, required: true },
-    card_num: { type: String, required: true },
-    expiry_date: { type: String, required: true },
-    security_code: { type: String, required: true },
-    zip: { type: Number, required: true }
-})
-
 // User Login Information
 const UserInfo = require('./models/UserInfo')
 const User = require('./models/User')
 const Reservation = require('./models/Reservation')
-const Preference = mongoose.model("Preference", preferredTablesSchema);
-const PastaPoint = mongoose.model("PastaPoint", pastaPointSchema);
-const InitialReservation = mongoose.model("InitialReservation", initialReservationSchema);
-const HoldFee = mongoose.model("HoldFee", holdFeeSchema)
+const Preference = require('./models/preference')
+const PastaPoint = require('./models/pastaPointSchema')
+const InitialReservation = require('./models/initialReservation')
+const HoldFee = require('./models/holdFee')
 
 const singleTables = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
 const users = []
@@ -214,11 +187,6 @@ app.post('/guestRegister', checkNotAuthenticated, async (req, res) => {
         res.redirect('/guestRegister')
     }
 })
-// }, passport.authenticate('local', {
-//     successRedirect: '/',
-//     failureRedirect: '/login',
-//     failureFlash: true
-// }))
 
 
 // PROFILE
@@ -456,6 +424,7 @@ app.get('/selectUserTables', checkAuthenticated, async(req,res) => {
         res.redirect('/userForm');
     }
 })
+
 app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
     // find initial reservation
     const initialReservation = await InitialReservation.findOne({ username: req.user.username}).sort({ _id: -1 })
@@ -487,9 +456,7 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
         arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
         // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
         tables = lib.parseTableNum(reservation.table_num)
-        console.log(arr);
-        console.log(tables);
-        // update arr[i - 1] += 1
+        // update arr[tables[i] - 1] += 1
         for (var i = 0; i < tables.length; i++){
             arr[tables[i]-1] += 1
         }
