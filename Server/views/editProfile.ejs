@@ -8,6 +8,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="shortcut icon" href="css/pasta.png" />
   <link rel ="stylesheet" href="css/editProfile.css">
 </head>
 
@@ -39,22 +40,26 @@
 <div class="form-group" >
             <!-- Street 1 -->
             <label for="street1_id" class="control-label">Street Address 1</label>
-            <input type="text" maxlength="100" required title="100 characters maximum" class="form-control"
-                id="street1_id" autocomplete="on" name="street1" placeholder="Street address, P.O. box, company name, c/o"
+            <input type="text" maxlength="100" required title="No special characters allowed" class="form-control"
+                id="street1_id" autocomplete="on" name="street1" 
+                placeholder="Street address, P.O. box, company name, c/o"
+                pattern="[1234567890a-zA-Z'-'\s]*"
                 required="required" />
         </div>
 
         <div class="form-group">
             <!-- Street 2 -->
             <label for="street2_id" class="control-label">Street Address 2</label>
-            <input type="text" maxlength="100" title="100 characters maximum" class="form-control" id="street2_id" autocomplete="on"
-                name="street2" placeholder="Apartment, suite, unit, building, floor, etc. (Optional)" />
+            <input type="text" maxlength="100" title="No special characters allowed" class="form-control" id="street2_id" autocomplete="on"
+                name="street2" 
+                placeholder="Apartment, suite, unit, building, floor, etc. (Optional)" 
+                pattern="[1234567890a-zA-Z'-'\s]*"/>
         </div>
     
         <div class="form-group">
             <!-- City-->
             <label for="city_id" class="control-label">City</label>
-            <input type="text" maxlength="100" pattern="[a-zA-Z ]+" required title="100 characters maximum"
+            <input type="text" maxlength="100" pattern="[a-zA-Z ]+" required title="Numeric values and special characters are not allowed"
                 class="form-control" id="city_id" autocomplete="on" name="city" placeholder="Houston" required="required" />
         </div>
 
@@ -121,7 +126,7 @@
             <label for="zip_id" class="form-check-label">Zip Code</label>
             <input type="text" pattern="\d*" minlength="5" maxlength="9" size=10
                 title="5 to 9 characters (Numerical characters only)" class="form-control" id="zip_id" autocomplete="on" name="zip"
-                placeholder="#####" />
+                placeholder="#####" required/>
             <br>
         </div>
         
@@ -140,28 +145,31 @@
 <div class="form-group" >
             <!-- Street 1 -->
             <label for="street1_id" class="control-label">Street Address 1</label>
-            <input type="text" maxlength="100" title="100 characters maximum" class="form-control"
-                id="street1_id" autocomplete="on" name="bill_street1" placeholder="Street address, P.O. box, company name, c/o" />
+            <input type="text" maxlength="100" title="No special characters allowed" class="form-control"
+                id="street1_id" autocomplete="on" name="bill_street1" 
+                placeholder="Street address, P.O. box, company name, c/o" 
+                pattern="[1234567890a-zA-Z'-'\s]*" required/>
         </div>
 
         <div class="form-group">
             <!-- Street 2 -->
             <label for="street2_id" class="control-label">Street Address 2</label>
-            <input type="text" maxlength="100" title="100 characters maximum" class="form-control" id="street2_id" autocomplete="on"
-                name="bill_street2" placeholder="Apartment, suite, unit, building, floor, etc. (Optional)" />
+            <input type="text" maxlength="100" title="No special characters allowed" class="form-control" id="street2_id" autocomplete="on"
+                name="bill_street2" placeholder="Apartment, suite, unit, building, floor, etc. (Optional)" 
+                pattern="[1234567890a-zA-Z'-'\s]*" />
         </div>
     
         <div class="form-group">
             <!-- City-->
             <label for="city_id" class="control-label">City</label>
-            <input type="text" maxlength="100" pattern="[a-zA-Z ]+" title="100 characters maximum"
-                class="form-control" id="city_id" autocomplete="on" name="bill_city" placeholder="Houston" />
+            <input type="text" maxlength="100" pattern="[a-zA-Z ]+" title="Numeric values and special characters are not allowed"
+                class="form-control" id="city_id" autocomplete="on" name="bill_city" placeholder="Houston" required/>
         </div>
 
         <div class="form-group">
             <!-- State Button -->
             <label for="state_id" class="control-label">State</label>
-            <select style="color: black;" class="form-control"  name="bill_state">
+            <select style="color: black;" class="form-control" required name="bill_state">
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
@@ -221,7 +229,7 @@
             <label for="zip_id" class="form-check-label">Zip Code</label>
             <input type="text" pattern="\d*" minlength="5" maxlength="9" size=10
                 title="5 to 9 characters (Numerical characters only)" class="form-control" id="zip_id" autocomplete="on" name="bill_zip"
-                placeholder="#####" />
+                placeholder="#####" required />
             <br>
         </div>
       </div> 
