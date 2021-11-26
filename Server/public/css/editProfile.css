@@ -3,7 +3,6 @@
   padding: 0;
   box-sizing: border-box;
   font-family: sans-serif;
-  color: #f3f3f3;
 }
 
 .clear {
@@ -29,6 +28,10 @@ div.inner_content {
   height: auto;
   padding: 20px;
   margin: 0 auto;
+}
+
+h1,h4 {
+  color: #f3f3f3;
 }
 
 h2.form_head {
