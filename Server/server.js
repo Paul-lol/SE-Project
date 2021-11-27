@@ -453,7 +453,6 @@ app.post('/selectUserTables', checkAuthenticated, async(req,res) => {
     // update preferred diner
     await Preference.findOne({ username: req.user.username }).then(async (info) => {
         var arr = info.tables, tables = []
-        arr[reservation.table_num - 1] = arr[reservation.table_num - 1] + 1
         // req.body.table_num: parse the string (two cases: "2" & multi "2 + 1 + 3")
         tables = lib.parseTableNum(reservation.table_num)
         // update arr[tables[i] - 1] += 1
