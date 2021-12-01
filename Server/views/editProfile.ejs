@@ -283,6 +283,9 @@
       let x = document.forms["myForm"]["bill_city"].value;
       let y = document.forms["myForm"]["bill_state"].value;
       let z = document.forms["myForm"]["bill_zip"].value;
+      
+      document.getElementById('remove').style.display='block';
+
       if(w == ""){
         alert("Billing address 1 must be filled out");
         return false;
@@ -299,7 +302,6 @@
         alert("Billing zip code must be filled out");
         return false;
       }
-      document.getElementById('remove').style.display='block';
     }
   }
 </script> 
